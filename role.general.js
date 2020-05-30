@@ -44,7 +44,7 @@ module.exports = {
             // ----- HARVESTING -------------
                 case Constants.States.HARVESTING:
                     if(creep.store.getFreeCapacity() > 0) {
-                        var source = creep.pos.findClosestByPath(FIND_SOURCES);
+                        var source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
                         if(creep.harvest(source) == ERR_NOT_IN_RANGE) {
                             creep.moveTo(source, {reusePath: 15, visualizePathStyle: {stroke: '#ffaa00'}});
                         }// =====
@@ -69,7 +69,8 @@ module.exports = {
                             filter: (structure) => {
                                 return (structure.structureType == STRUCTURE_EXTENSION ||
                                         structure.structureType == STRUCTURE_SPAWN ||
-                                        structure.structureType == STRUCTURE_TOWER) && 
+                                        structure.structureType == STRUCTURE_TOWER ||
+                                        structure.structureType == STRUCTURE_CONTAINER) && 
                                         structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
                             }
                     });// =====

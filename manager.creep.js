@@ -25,7 +25,7 @@ module.exports = {
                 /**
                  * Build first needed worker found. Then, report the spawning.
                  */ 
-                if(_.filter(allCreepsInRoom, (creep) => creep.memory.role === roleTitle).length < Constants.Workers[roleTitle].max) {
+                if(_.filter(allCreepsInRoom, (creep) => creep.memory.role === roleTitle).length < roomObj.memory[LOOK_CREEPS][roleTitle].max) {
                     let workerName = roleTitle + Game.time;
                     let rSpawn = _.filter(Game.spawns, (spawn) => spawn.room.name === roomObj.name)[0];
                     

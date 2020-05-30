@@ -1,5 +1,5 @@
-const controllerManager = require('controller.manager');
-const creepManager = require('creep.manager');
+const managerController = require('manager.controller');
+const managerCreep = require('manager.creep');
 const Constants = require('constants');
 
 var devMessage = "Developer Test Message";
@@ -14,9 +14,9 @@ module.exports.loop = function () {
         const startCpu = Game.cpu.getUsed();
         console.log("Room:", Constants.StringifyObject(Game.rooms[name]));;
         
-        controllerManager.run(Game.rooms[name]);
+        managerController.run(Game.rooms[name]);
         
-        creepManager.run(Game.rooms[name]);
+        managerCreep.run(Game.rooms[name]);
         
         const elapsed = Game.cpu.getUsed() - startCpu;
         console.log("Room", name, "has used" ,elapsed, "CPU time");

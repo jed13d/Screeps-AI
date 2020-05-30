@@ -27,7 +27,6 @@ module.exports = {
     
     Workers: {
         'general': {
-            max: 10,
             buildCosts: [300, 350, 400, 450, 500, 550],
             parts: {
                 300: [WORK, WORK, CARRY, MOVE],
@@ -44,15 +43,70 @@ module.exports = {
                 },
             },
         },
+        'harvest': {
+            buildCosts: [300, 350, 400, 450, 500, 550],
+            parts: {
+                300: [WORK, CARRY, CARRY, CARRY, MOVE],
+                350: [WORK, CARRY, CARRY, CARRY, CARRY, MOVE],
+                400: [WORK, WORK, CARRY, CARRY, CARRY, MOVE],
+                450: [WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE],
+                500: [WORK, WORK, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE],
+                550: [WORK, WORK, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE],
+            },
+            options: {
+                memory: {
+                    role: 'harvest',
+                    state: 'idle',
+                },
+            },
+        },
         'melee': {
-            max: 10,
             buildCosts: [300, 350, 400, 450, 500, 550],
             parts: {
                 300: [TOUGH, TOUGH, TOUGH, TOUGH, ATTACK, ATTACK, MOVE, MOVE],
+                350: [TOUGH, TOUGH, TOUGH, TOUGH, ATTACK, ATTACK, MOVE, MOVE, MOVE],
+                400: [TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, ATTACK, ATTACK, ATTACK, MOVE, MOVE],
+                450: [TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, ATTACK, ATTACK, ATTACK, MOVE, MOVE, MOVE],
+                500: [TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, ATTACK, ATTACK, ATTACK, ATTACK, MOVE, MOVE],
+                550: [TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, ATTACK, ATTACK, ATTACK, ATTACK, MOVE, MOVE, MOVE],
             },
             options: {
                 memory: {
                     role: 'melee',
+                    state: 'idle',
+                },
+            },
+        },
+        'range': {
+            buildCosts: [300, 350, 400, 450, 500, 550],
+            parts: {
+                300: [TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, RANGED_ATTACK, MOVE, MOVE],
+                350: [TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, RANGED_ATTACK, MOVE, MOVE, MOVE],
+                400: [TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, RANGED_ATTACK, MOVE, MOVE, MOVE, MOVE],
+                450: [TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, RANGED_ATTACK, RANGED_ATTACK, MOVE, MOVE],
+                500: [TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, RANGED_ATTACK, RANGED_ATTACK, MOVE, MOVE, MOVE],
+                550: [TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, RANGED_ATTACK, RANGED_ATTACK, MOVE, MOVE, MOVE, MOVE],
+            },
+            options: {
+                memory: {
+                    role: 'range',
+                    state: 'idle',
+                },
+            },
+        },
+        'upgrade': {
+            buildCosts: [300, 350, 400, 450, 500, 550],
+            parts: {
+                300: [WORK, WORK, CARRY, MOVE],
+                350: [WORK, WORK, CARRY, CARRY, MOVE],
+                400: [WORK, WORK, WORK, CARRY, MOVE],
+                450: [WORK, WORK, WORK, CARRY, CARRY, MOVE],
+                500: [WORK, WORK, WORK, WORK, CARRY, MOVE],
+                550: [WORK, WORK, WORK, WORK, CARRY, CARRY, MOVE],
+            },
+            options: {
+                memory: {
+                    role: 'upgrade',
                     state: 'idle',
                 },
             },
