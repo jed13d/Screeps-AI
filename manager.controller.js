@@ -49,6 +49,7 @@ module.exports = {
                     /**
                      * Build roads around Spawn
                      */
+                    var startCpu = Game.cpu.getUsed();
                     if(roomObj.memory[STRUCTURE_SPAWN][STRUCTURE_ROAD]['placed'] == false) {
                         let spawnPos = roomObj.find(FIND_MY_SPAWNS)[0].pos;
                         let x = spawnPos.x - 3;
@@ -63,51 +64,85 @@ module.exports = {
                                 }// =====
                             }// =====
                         }// =====
+
+                        // build roads to source from one of the ends
+                        let points = [
+                            roomObj.getPositionAt((spawnPos.x), (spawnPos.y - 3)),
+                            roomObj.getPositionAt((spawnPos.x), (spawnPos.y + 3)),
+                            roomObj.getPositionAt((spawnPos.x - 3), (spawnPos.y)),
+                            roomObj.getPositionAt((spawnPos.x + 3), (spawnPos.y)),
+                        ];// =====
+                        let source = spawnPos.findClosestByPath(FIND_SOURCES_ACTIVE);
+                        let pathToRoad = source.pos.findPathTo(source.pos.findClosestByPath(points), {ignoreCreeps: true, ignoreRoads: true});
+                        for(var step of pathToRoad) {
+                            roomObj.createConstructionSite(step.x, step.y, STRUCTURE_ROAD);
+                        }// =====
+
                         roomObj.memory[STRUCTURE_SPAWN][STRUCTURE_ROAD]['placed'] = true;
                     }// =====
+                    var elapsed = Game.cpu.getUsed() - startCpu;
+                    console.log("Setting up spawn level 1 has used", elapsed, "CPU time");
 
                     /**
-                     * Build containers around controller. Build roads connecting containers.
+                     * Build containers around controller.
+                     * Build roads connecting containers.
+                     * Build roads connecting closest source.
                      */
+                    startCpu = Game.cpu.getUsed();
                     if(roomObj.memory[STRUCTURE_CONTROLLER][STRUCTURE_CONTAINER]['placed'] == false) {
+                        let ctlrContainers = [];
+
                         let tl = roomObj.getPositionAt((roomObj.controller.pos.x - 1), (roomObj.controller.pos.y - 1));
                         let tl_result = roomObj.createConstructionSite(tl, STRUCTURE_CONTAINER);
+                        if(tl_result == OK) {
+                            roomObj.createConstructionSite(tl.x - 1, tl.y, STRUCTURE_ROAD);
+                            roomObj.createConstructionSite(tl.x + 1, tl.y, STRUCTURE_ROAD);
+                            roomObj.createConstructionSite(tl.x, tl.y + 1, STRUCTURE_ROAD);
+                            roomObj.createConstructionSite(tl.x, tl.y - 1, STRUCTURE_ROAD);
+                            ctlrContainers.push(tl);
+                        }// =====
+
                         let bl = roomObj.getPositionAt((roomObj.controller.pos.x - 1), (roomObj.controller.pos.y + 1));
                         let bl_result = roomObj.createConstructionSite(bl, STRUCTURE_CONTAINER);
+                        if(bl_result == OK) {
+                            roomObj.createConstructionSite(bl.x - 1, bl.y, STRUCTURE_ROAD);
+                            roomObj.createConstructionSite(bl.x + 1, bl.y, STRUCTURE_ROAD);
+                            roomObj.createConstructionSite(bl.x, bl.y + 1, STRUCTURE_ROAD);
+                            roomObj.createConstructionSite(bl.x, bl.y - 1, STRUCTURE_ROAD);
+                            ctlrContainers.push(bl);
+                        }// =====
+
                         let tr = roomObj.getPositionAt((roomObj.controller.pos.x + 1), (roomObj.controller.pos.y - 1));
                         let tr_result = roomObj.createConstructionSite(tr, STRUCTURE_CONTAINER);
+                        if(tr_result == OK) {
+                            roomObj.createConstructionSite(tr.x - 1, tr.y, STRUCTURE_ROAD);
+                            roomObj.createConstructionSite(tr.x + 1, tr.y, STRUCTURE_ROAD);
+                            roomObj.createConstructionSite(tr.x, tr.y + 1, STRUCTURE_ROAD);
+                            roomObj.createConstructionSite(tr.x, tr.y - 1, STRUCTURE_ROAD);
+                            ctlrContainers.push(tr);
+                        }// =====
+
                         let br = roomObj.getPositionAt((roomObj.controller.pos.x + 1), (roomObj.controller.pos.y + 1));
                         let br_result = roomObj.createConstructionSite(br, STRUCTURE_CONTAINER);
-                        
-                        // TOP
-                        if(tl_result == OK && tr_result == OK) {
-                            for(let y = tl.y, x = tl.x + 1; x < tr.x; x++) {
-                                roomObj.createConstructionSite(x, y, STRUCTURE_ROAD);
-                            }// =====
+                        if(br_result == OK) {
+                            roomObj.createConstructionSite(br.x - 1, br.y, STRUCTURE_ROAD);
+                            roomObj.createConstructionSite(br.x + 1, br.y, STRUCTURE_ROAD);
+                            roomObj.createConstructionSite(br.x, br.y + 1, STRUCTURE_ROAD);
+                            roomObj.createConstructionSite(br.x, br.y - 1, STRUCTURE_ROAD);
+                            ctlrContainers.push(br);
                         }// =====
                         
-                        // LEFT
-                        if(tl_result == OK && bl_result == OK) {
-                            for(let y = tl.y + 1, x = tl.x; y < bl.y; y++) {
-                                roomObj.createConstructionSite(x, y, STRUCTURE_ROAD);
-                            }// =====
+                        // build roads to source from one of the containers
+                        let source = roomObj.controller.findClosestByPath(FIND_SOURCES_ACTIVE);
+                        let pathToRoad = source.pos.findPathTo(source.pos.findClosestByPath(ctlrContainers), {ignoreCreeps: true, ignoreRoads: true, range: 1});
+                        for(var step of pathToRoad) {
+                            roomObj.createConstructionSite(step.x, step.y, STRUCTURE_ROAD);
                         }// =====
                         
-                        // RIGHT
-                        if(br_result == OK && tr_result == OK) {
-                            for(let y = tr.y + 1, x = tr.x; y < br.y; y++) {
-                                roomObj.createConstructionSite(x, y, STRUCTURE_ROAD);
-                            }// =====
-                        }// =====
-                        
-                        // BOTTOM
-                        if(br_result == OK && bl_result == OK) {
-                            for(let y = bl.y, x = bl.x + 1; x < br.x; x++) {
-                                roomObj.createConstructionSite(x, y, STRUCTURE_ROAD);
-                            }// =====
-                        }// =====
                         roomObj.memory[STRUCTURE_CONTROLLER][STRUCTURE_CONTAINER]['placed'] = true;
                     }// =====
+                    elapsed = Game.cpu.getUsed() - startCpu;
+                    console.log("Setting up controller level 1 has used", elapsed, "CPU time");
                     
                     
                     roomObj.memory['complete'] = true;
@@ -130,8 +165,7 @@ module.exports = {
                 // if x < 5
                 if(roomObj.memory[STRUCTURE_EXTENSION].qty < CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION][roomObj.controller.level]) {
                     let spawnPos = roomObj.find(FIND_MY_SPAWNS)[0].pos;
-                    for(let posx = rSpawnPos.x - 5; posx <= rSpawnPos.x + 5; posx += 2) {
-                        let posy = rSpawnPos.y + 1;
+                    for(let posx = rSpawnPos.x - 3, posy = rSpawnPos.y + 1; posx >= rSpawnPos.x + 5; posx += 2) {
                         let result = roomObj.createConstructionSite(posx, posy, STRUCTURE_EXTENSION);
                         if(result == 0) {
                             console.log("Created construction site", STRUCTURE_EXTENSION, posx, posy);

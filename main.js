@@ -19,7 +19,7 @@ module.exports.loop = function () {
         managerCreep.run(Game.rooms[name]);
         
         const elapsed = Game.cpu.getUsed() - startCpu;
-        console.log("Room", name, "has used" ,elapsed, "CPU time");
+        console.log("Room", name, "has used", elapsed, "CPU time");
     }// ==============================
     
     
