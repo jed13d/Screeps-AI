@@ -11,7 +11,12 @@ module.exports = {
     },// ==============================
     
     Roles: {
+        BUILD: 'build',
         GENERAL: 'general',
+        LOCAL_ENERGY_HARVEST: 'harvest-local-energy',
+        MELEE: 'melee',
+        RANGE: 'range',
+        UPGRADE: 'upgrade',
     },// ==============================
     
     /*BODYPART_COST: {
@@ -26,6 +31,24 @@ module.exports = {
     },*/
     
     Workers: {
+        'build': {
+            buildCosts: [300, 350, 400, 450, 500, 550],
+            parts: {
+                300: [WORK, WORK, CARRY, MOVE],
+                350: [WORK, WORK, CARRY, MOVE, MOVE],
+                400: [WORK, WORK, CARRY, CARRY, MOVE, MOVE],
+                450: [WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE],
+                500: [WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE],
+                550: [WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE],
+            },
+            options: {
+                memory: {
+                    role: 'build',
+                    state: 'idle',
+                    targetId: null,
+                },
+            },
+        },
         'general': {
             buildCosts: [300, 350, 400, 450, 500, 550],
             parts: {
@@ -40,10 +63,11 @@ module.exports = {
                 memory: {
                     role: 'general',
                     state: 'idle',
+                    targetId: null,
                 },
             },
         },
-        'harvest': {
+        'harvest-local-energy': {
             buildCosts: [300, 350, 400, 450, 500, 550],
             parts: {
                 300: [WORK, CARRY, CARRY, CARRY, MOVE],
@@ -55,8 +79,9 @@ module.exports = {
             },
             options: {
                 memory: {
-                    role: 'harvest',
+                    role: 'harvest-local-energy',
                     state: 'idle',
+                    targetId: null,
                 },
             },
         },
@@ -74,6 +99,7 @@ module.exports = {
                 memory: {
                     role: 'melee',
                     state: 'idle',
+                    targetId: null,
                 },
             },
         },
@@ -91,6 +117,7 @@ module.exports = {
                 memory: {
                     role: 'range',
                     state: 'idle',
+                    targetId: null,
                 },
             },
         },

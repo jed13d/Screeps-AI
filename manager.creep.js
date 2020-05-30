@@ -1,4 +1,7 @@
+const roleBuilder = require('role.builder');
 const roleGeneral = require('role.general');
+const roleLNHarvester = require('role.local.energy.harvester');
+const roleUpgrader = require('role.upgrader');
 const Constants = require('constants');
 
 var devMessage = "Developer Test Message";
@@ -11,7 +14,7 @@ module.exports = {
     /** @param (roomObj) room object **/
     run: function(roomObj) {
         
-        let allCreepsInRoom = _.filter(Game.creeps, (creep) => creep.room.name === roomObj.name);
+        let allCreepsInRoom = roomObj.find(FIND_MY_CREEPS);
         console.log("Number of workers:", allCreepsInRoom.length);
         
         /**
@@ -27,7 +30,7 @@ module.exports = {
                  */ 
                 if(_.filter(allCreepsInRoom, (creep) => creep.memory.role === roleTitle).length < roomObj.memory[LOOK_CREEPS][roleTitle].max) {
                     let workerName = roleTitle + Game.time;
-                    let rSpawn = _.filter(Game.spawns, (spawn) => spawn.room.name === roomObj.name)[0];
+                    let rSpawn = roomObj.find(FIND_MY_SPAWNS)[0];
                     
                     // used for choosing largest creep build option
                     let nrgToUse = 0;
@@ -37,34 +40,42 @@ module.exports = {
                         }// =====
                     };// =====
                     
-                    console.log("Energy to use in spawning:", nrgToUse);
+                    // console.log("Energy to use in spawning:", nrgToUse);
                     // attempt to spawn
-                    let result = rSpawn.spawnCreep(
+                    rSpawn.spawnCreep(
                         Constants.Workers[roleTitle].parts[nrgToUse],
                         workerName,
                         Constants.Workers[roleTitle].options
                     );
-                    
-                    // upon success
-                    if(result === 0) {
-                        roomObj.visual.text('🛠️' + workerName, rSpawn.pos.x +1, rSpawn.pos.y, {align: 'left', opacity: 0.8});
-                        break;
-                    } else {
-                        console.log("Spawn error:", result);
-                    }// ===== if
                 }// ===== if
                 
             }// ===== for
         }// ===== if
-        
+
         /**
          * Orders for creeps based on role.
+         * - roleBuilder
+         * - roleGeneral
+         * - roleLNHarvester
+         * - roleUpgrader
          */
         for(let worker of allCreepsInRoom) {
+
+            Constants.OutputObject(worker.memory);
+
             switch(worker.memory.role) {
+                case Constants.Roles.BUILD:
+                    roleBuilder.run(worker);
+                    break;
                 default:
                 case Constants.Roles.GENERAL:
                     roleGeneral.run(worker);
+                    break;
+                case Constants.Roles.LOCAL_ENERGY_HARVEST:
+                    roleLNHarvester.run(worker);
+                    break;
+                case Constants.Roles.UPGRADE:
+                    roleUpgrader.run(worker);
                     break;
             }// ===== switch
         }// ===== for

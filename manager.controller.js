@@ -27,7 +27,7 @@ module.exports = {
              * Roads, 5 Containers, 1 Spawn
              */
             case 1:
-                Constants.OutputObject(roomObj.memory);
+                
                 if(JSON.stringify(roomObj.memory) === '{}' || roomObj.memory['complete'] == false) {
                     console.log("Controller Level 1 Tactics");
 
@@ -35,21 +35,28 @@ module.exports = {
                      * Initialize Memory
                      */
                     if(roomObj.memory['stage'] == undefined || roomObj.memory['stage'] < roomObj.controller.level) {
-                        console.log(devMessage);
                         roomObj.memory[STRUCTURE_CONTROLLER] = {};
                         roomObj.memory[STRUCTURE_CONTROLLER][STRUCTURE_CONTAINER] = {'placed': false};
                         roomObj.memory[STRUCTURE_SPAWN] = {};
                         roomObj.memory[STRUCTURE_SPAWN][STRUCTURE_ROAD] = {'placed': false};
                         roomObj.memory[LOOK_CREEPS] = {};
-                        roomObj.memory[LOOK_CREEPS][Constants.Roles.GENERAL] = {max: 10};
+                        roomObj.memory[LOOK_CREEPS][Constants.Roles.BUILD] = {max: 0};
+                        roomObj.memory[LOOK_CREEPS][Constants.Roles.GENERAL] = {max: 6};
+                        roomObj.memory[LOOK_CREEPS][Constants.Roles.LOCAL_ENERGY_HARVEST] = {max: 0};
+                        roomObj.memory[LOOK_CREEPS][Constants.Roles.MELEE] = {max: 0};
+                        roomObj.memory[LOOK_CREEPS][Constants.Roles.RANGE] = {max: 0};
+                        roomObj.memory[LOOK_CREEPS][Constants.Roles.UPGRADE] = {max: 0};
                         roomObj.memory['stage'] = roomObj.controller.level;
                         roomObj.memory['complete'] = false;
+                        
+                        Constants.OutputObject(roomObj.memory);
                     }// =====
 
                     /**
                      * Build roads around Spawn
                      */
                     var startCpu = Game.cpu.getUsed();
+                    let spawnPoints = [];
                     if(roomObj.memory[STRUCTURE_SPAWN][STRUCTURE_ROAD]['placed'] == false) {
                         let spawnPos = roomObj.find(FIND_MY_SPAWNS)[0].pos;
                         let x = spawnPos.x - 3;
@@ -66,14 +73,14 @@ module.exports = {
                         }// =====
 
                         // build roads to source from one of the ends
-                        let points = [
+                        spawnPoints = [
                             roomObj.getPositionAt((spawnPos.x), (spawnPos.y - 3)),
                             roomObj.getPositionAt((spawnPos.x), (spawnPos.y + 3)),
                             roomObj.getPositionAt((spawnPos.x - 3), (spawnPos.y)),
                             roomObj.getPositionAt((spawnPos.x + 3), (spawnPos.y)),
                         ];// =====
                         let source = spawnPos.findClosestByPath(FIND_SOURCES_ACTIVE);
-                        let pathToRoad = source.pos.findPathTo(source.pos.findClosestByPath(points), {ignoreCreeps: true, ignoreRoads: true});
+                        let pathToRoad = source.pos.findPathTo(source.pos.findClosestByPath(spawnPoints), {ignoreCreeps: true, ignoreRoads: true});
                         for(var step of pathToRoad) {
                             roomObj.createConstructionSite(step.x, step.y, STRUCTURE_ROAD);
                         }// =====
@@ -89,8 +96,8 @@ module.exports = {
                      * Build roads connecting closest source.
                      */
                     startCpu = Game.cpu.getUsed();
+                    let ctlrContainers = [];
                     if(roomObj.memory[STRUCTURE_CONTROLLER][STRUCTURE_CONTAINER]['placed'] == false) {
-                        let ctlrContainers = [];
 
                         let tl = roomObj.getPositionAt((roomObj.controller.pos.x - 1), (roomObj.controller.pos.y - 1));
                         let tl_result = roomObj.createConstructionSite(tl, STRUCTURE_CONTAINER);
@@ -133,7 +140,7 @@ module.exports = {
                         }// =====
                         
                         // build roads to source from one of the containers
-                        let source = roomObj.controller.findClosestByPath(FIND_SOURCES_ACTIVE);
+                        let source = roomObj.controller.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
                         let pathToRoad = source.pos.findPathTo(source.pos.findClosestByPath(ctlrContainers), {ignoreCreeps: true, ignoreRoads: true, range: 1});
                         for(var step of pathToRoad) {
                             roomObj.createConstructionSite(step.x, step.y, STRUCTURE_ROAD);
@@ -143,9 +150,28 @@ module.exports = {
                     }// =====
                     elapsed = Game.cpu.getUsed() - startCpu;
                     console.log("Setting up controller level 1 has used", elapsed, "CPU time");
-                    
+
+                    /**
+                     * Build roads connecting Spawn to Controller
+                     */
+                    var startCpu = Game.cpu.getUsed();
+                    if(roomObj.memory[STRUCTURE_SPAWN][STRUCTURE_ROAD]['placed'] == true &&
+                    roomObj.memory[STRUCTURE_CONTROLLER][STRUCTURE_CONTAINER]['placed'] == true) {
+
+                        let spawnPos = roomObj.find(FIND_MY_SPAWNS)[0].pos;
+                        let closestPoint = roomObj.controller.pos.findClosestByPath(spawnPoints);
+                        let pathConnecting = closestPoint.findPathTo(closestPoint.findClosestByPath(ctlrContainers), {ignoreCreeps: true, ignoreRoads: true, range: 1});
+                        for(var step of pathConnecting) {
+                            roomObj.createConstructionSite(step.x, step.y, STRUCTURE_ROAD);
+                        }// =====
+
+                    }// =====
+                    elapsed = Game.cpu.getUsed() - startCpu;
+                    console.log("Connecting controller and spawn has used", elapsed, "CPU time");
                     
                     roomObj.memory['complete'] = true;
+                } else {
+                    console.log("Controller stage 1 complete. No more to do here.");
                 }// =====
                 break;
                 
@@ -156,6 +182,12 @@ module.exports = {
                 
                 if(roomObj.memory['stage'] < roomObj.controller.level) {
                     roomObj.memory[STRUCTURE_EXTENSION] = {qty: 0};
+                    roomObj.memory[LOOK_CREEPS][Constants.Roles.BUILD] = {max: 2};
+                    roomObj.memory[LOOK_CREEPS][Constants.Roles.GENERAL] = {max: 0};
+                    roomObj.memory[LOOK_CREEPS][Constants.Roles.LOCAL_ENERGY_HARVEST] = {max: 3};
+                    roomObj.memory[LOOK_CREEPS][Constants.Roles.MELEE] = {max: 0};
+                    roomObj.memory[LOOK_CREEPS][Constants.Roles.RANGE] = {max: 0};
+                    roomObj.memory[LOOK_CREEPS][Constants.Roles.UPGRADE] = {max: 4};
                     roomObj.memory['stage'] = roomObj.controller.level;
                     roomObj.memory['complete'] = false;
                 }// =====
@@ -165,7 +197,7 @@ module.exports = {
                 // if x < 5
                 if(roomObj.memory[STRUCTURE_EXTENSION].qty < CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION][roomObj.controller.level]) {
                     let spawnPos = roomObj.find(FIND_MY_SPAWNS)[0].pos;
-                    for(let posx = rSpawnPos.x - 3, posy = rSpawnPos.y + 1; posx >= rSpawnPos.x + 5; posx += 2) {
+                    for(let posx = spawnPos.x - 3, posy = spawnPos.y + 1; posx >= spawnPos.x + 5; posx += 2) {
                         let result = roomObj.createConstructionSite(posx, posy, STRUCTURE_EXTENSION);
                         if(result == 0) {
                             console.log("Created construction site", STRUCTURE_EXTENSION, posx, posy);
