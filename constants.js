@@ -135,6 +135,7 @@ module.exports = {
                 memory: {
                     role: 'upgrade',
                     state: 'idle',
+                    targetId: null,
                 },
             },
         },

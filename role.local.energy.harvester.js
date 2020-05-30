@@ -20,7 +20,7 @@ module.exports = {
                 case Constants.States.HARVESTING:
                     if(creep.store.getFreeCapacity() > 0) {
                         var target = (creep.memory.targetId != null) ? Game.getObjectById(creep.memory.targetId) : creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
-                        if(creep.memory.targetId == null && target != null) creep.memory.targetId = source.id;
+                        if(creep.memory.targetId == null && target != null) creep.memory.targetId = target.id;
 
                         if(target != null) {
                             switch(creep.harvest(target)) {
