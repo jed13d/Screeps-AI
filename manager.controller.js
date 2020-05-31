@@ -39,13 +39,6 @@ module.exports = {
                         roomObj.memory[STRUCTURE_CONTROLLER][STRUCTURE_CONTAINER] = {'placed': false};
                         roomObj.memory[STRUCTURE_SPAWN] = {};
                         roomObj.memory[STRUCTURE_SPAWN][STRUCTURE_ROAD] = {'placed': false};
-                        roomObj.memory[LOOK_CREEPS] = {};
-                        roomObj.memory[LOOK_CREEPS][Constants.Roles.BUILD] = {max: 0};
-                        roomObj.memory[LOOK_CREEPS][Constants.Roles.GENERAL] = {max: 6};
-                        roomObj.memory[LOOK_CREEPS][Constants.Roles.LOCAL_ENERGY_HARVEST] = {max: 0};
-                        roomObj.memory[LOOK_CREEPS][Constants.Roles.MELEE] = {max: 0};
-                        roomObj.memory[LOOK_CREEPS][Constants.Roles.RANGE] = {max: 0};
-                        roomObj.memory[LOOK_CREEPS][Constants.Roles.UPGRADE] = {max: 0};
                         roomObj.memory['stage'] = roomObj.controller.level;
                         roomObj.memory['complete'] = false;
                         
@@ -171,7 +164,7 @@ module.exports = {
                     
                     roomObj.memory['complete'] = true;
                 } else {
-                    console.log("Controller stage 1 complete. No more to do here.");
+                    // console.log("Controller stage 1 complete. No more to do here.");
                 }// =====
                 break;
                 
@@ -180,31 +173,35 @@ module.exports = {
              */
             case 2:
                 
-                if(roomObj.memory['stage'] < roomObj.controller.level) {
-                    roomObj.memory[STRUCTURE_EXTENSION] = {qty: 0};
-                    roomObj.memory[LOOK_CREEPS][Constants.Roles.BUILD] = {max: 2};
-                    roomObj.memory[LOOK_CREEPS][Constants.Roles.GENERAL] = {max: 0};
-                    roomObj.memory[LOOK_CREEPS][Constants.Roles.LOCAL_ENERGY_HARVEST] = {max: 3};
-                    roomObj.memory[LOOK_CREEPS][Constants.Roles.MELEE] = {max: 0};
-                    roomObj.memory[LOOK_CREEPS][Constants.Roles.RANGE] = {max: 0};
-                    roomObj.memory[LOOK_CREEPS][Constants.Roles.UPGRADE] = {max: 4};
-                    roomObj.memory['stage'] = roomObj.controller.level;
-                    roomObj.memory['complete'] = false;
-                }// =====
-                
-                
-                console.log("Controller Level 2 Tactics");
-                // if x < 5
-                if(roomObj.memory[STRUCTURE_EXTENSION].qty < CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION][roomObj.controller.level]) {
-                    let spawnPos = roomObj.find(FIND_MY_SPAWNS)[0].pos;
-                    for(let posx = spawnPos.x - 3, posy = spawnPos.y + 1; posx >= spawnPos.x + 5; posx += 2) {
-                        let result = roomObj.createConstructionSite(posx, posy, STRUCTURE_EXTENSION);
-                        if(result == 0) {
-                            console.log("Created construction site", STRUCTURE_EXTENSION, posx, posy);
-                            roomObj.memory[STRUCTURE_EXTENSION].qty += 1;
-                            break;
-                        }
+                if(roomObj.memory['stage'] < roomObj.controller.level ||
+                        (roomObj.memory['stage'] == roomObj.controller.level && roomObj.memory['complete'] == false)) {
+                    console.log("Controller Level 2 Tactics");
+
+                    /**
+                     * Initialize Memory
+                     */
+                    if(roomObj.memory['stage'] < roomObj.controller.level) {
+                        roomObj.memory[STRUCTURE_CONTROLLER] = {};
+                        roomObj.memory[STRUCTURE_SPAWN] = {};
+                        roomObj.memory[STRUCTURE_EXTENSION] = {qty: 0};
+                        roomObj.memory['stage'] = roomObj.controller.level;
+                        roomObj.memory['complete'] = false;
+                        
+                        Constants.OutputObject(roomObj.memory);
                     }// =====
+                    
+                    /**
+                     * Build extensions nearby spawn.
+                     */
+                    if(roomObj.memory[STRUCTURE_EXTENSION].qty < CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION][roomObj.controller.level]) {
+                        let spawnPos = roomObj.find(FIND_MY_SPAWNS)[0].pos;
+                        for(let x = spawnPos.x + 1, y = spawnPos.y + 1; roomObj.memory[STRUCTURE_EXTENSION].qty < CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION][roomObj.controller.level]; x += 2) {
+                            if(roomObj.createConstructionSite(x, y, STRUCTURE_EXTENSION) == OK) {
+                                roomObj.memory[STRUCTURE_EXTENSION].qty += 1;
+                            }// =====
+                        }// =====
+                    }// =====
+
                 }// =====
                 break;
                 
@@ -213,7 +210,18 @@ module.exports = {
              */
             case 3:
                 
-                console.log("Controller Level 3 Tactics");
+                if(roomObj.memory['stage'] < roomObj.controller.level ||
+                        (roomObj.memory['stage'] == roomObj.controller.level && roomObj.memory['complete'] == false)) {
+                    console.log("Controller Level 3 Tactics");
+
+                    /**
+                     * Initialize Memory
+                     */
+                    if(roomObj.memory['stage'] < roomObj.controller.level) {
+                        
+                        Constants.OutputObject(roomObj.memory);
+                    }// =====
+                }
                 break;
                 
             /**
@@ -221,7 +229,18 @@ module.exports = {
              */
             case 4:
                 
-                console.log("Controller Level 4 Tactics");
+                if(roomObj.memory['stage'] < roomObj.controller.level ||
+                        (roomObj.memory['stage'] == roomObj.controller.level && roomObj.memory['complete'] == false)) {
+                    console.log("Controller Level 4 Tactics");
+
+                    /**
+                     * Initialize Memory
+                     */
+                    if(roomObj.memory['stage'] < roomObj.controller.level) {
+                        
+                        Constants.OutputObject(roomObj.memory);
+                    }// =====
+                }
                 break;
                 
             /**
@@ -229,7 +248,18 @@ module.exports = {
              */
             case 5:
                 
-                console.log("Controller Level 5 Tactics");
+                if(roomObj.memory['stage'] < roomObj.controller.level ||
+                        (roomObj.memory['stage'] == roomObj.controller.level && roomObj.memory['complete'] == false)) {
+                    console.log("Controller Level 5 Tactics");
+
+                    /**
+                     * Initialize Memory
+                     */
+                    if(roomObj.memory['stage'] < roomObj.controller.level) {
+                        
+                        Constants.OutputObject(roomObj.memory);
+                    }// =====
+                }
                 break;
                 
             /**
@@ -238,7 +268,18 @@ module.exports = {
              */
             case 6:
                 
-                console.log("Controller Level 6 Tactics");
+                if(roomObj.memory['stage'] < roomObj.controller.level ||
+                        (roomObj.memory['stage'] == roomObj.controller.level && roomObj.memory['complete'] == false)) {
+                    console.log("Controller Level 6 Tactics");
+
+                    /**
+                     * Initialize Memory
+                     */
+                    if(roomObj.memory['stage'] < roomObj.controller.level) {
+                        
+                        Constants.OutputObject(roomObj.memory);
+                    }// =====
+                }
                 break;
                 
             /**
@@ -247,7 +288,18 @@ module.exports = {
              */
             case 7:
                 
-                console.log("Controller Level 7 Tactics");
+                if(roomObj.memory['stage'] < roomObj.controller.level ||
+                        (roomObj.memory['stage'] == roomObj.controller.level && roomObj.memory['complete'] == false)) {
+                    console.log("Controller Level 7 Tactics");
+
+                    /**
+                     * Initialize Memory
+                     */
+                    if(roomObj.memory['stage'] < roomObj.controller.level) {
+                        
+                        Constants.OutputObject(roomObj.memory);
+                    }// =====
+                }
                 break;
                 
             /**
@@ -256,7 +308,18 @@ module.exports = {
              */
             case 8:
                 
-                console.log("Controller Level 8 Tactics");
+                if(roomObj.memory['stage'] < roomObj.controller.level ||
+                        (roomObj.memory['stage'] == roomObj.controller.level && roomObj.memory['complete'] == false)) {
+                    console.log("Controller Level 8 Tactics");
+
+                    /**
+                     * Initialize Memory
+                     */
+                    if(roomObj.memory['stage'] < roomObj.controller.level) {
+                        
+                        Constants.OutputObject(roomObj.memory);
+                    }// =====
+                }
                 break;
                 
         }// =====

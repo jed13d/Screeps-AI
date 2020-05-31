@@ -35,6 +35,9 @@ module.exports = {
                                 case OK:
                                     creep.memory.state = Constants.States.UPGRADING;
                                     break;
+                                case ERR_NOT_IN_RANGE:
+                                    creep.moveTo(target);
+                                    break;
                             }// =====
                         } else {
                             creep.memory.state = Constants.States.IDLE;

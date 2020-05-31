@@ -13,10 +13,6 @@ module.exports = {
     
     /** @param {Creep} creep **/
     run: function(creep) {
-            // console.log(creep, ":", Constants.StringifyObject(creep.body));
-            // console.log(creep, ":", Constants.StringifyObject(creep.memory));
-            // console.log(creep, ":", creep.memory.state, "\n\t:", Constants.StringifyObject(creep));
-            
             
             switch(creep.memory.state) {
                 
@@ -25,7 +21,7 @@ module.exports = {
                     /**
                      * If there are construction sites, build, otherwise, upgrade
                      */
-                    var target = (creep.memory.targetId != null) ? Game.getObjectById(creep.memory.targetId) : creep.pos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES);
+                    var target = (creep.memory.targetId == null) ? creep.pos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES) : Game.getObjectById(creep.memory.targetId) == null ? creep.pos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES) : Game.getObjectById(creep.memory.targetId);
                     if(creep.memory.targetId == null && target != null) creep.memory.targetId = target.id;
 
                     if(target != null) {
