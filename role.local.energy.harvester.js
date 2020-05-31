@@ -17,10 +17,10 @@ module.exports = {
             switch(creep.memory.state) {
                     
             // ----- HARVESTING -------------
-                case Constants.States.HARVESTING:
+                case Constants.WorkerStates.HARVESTING:
                     if(creep.store.getFreeCapacity() > 0) {
-                        var target = (creep.memory.targetId != null) ? Game.getObjectById(creep.memory.targetId) : creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
-                        if(creep.memory.targetId == null && target != null) creep.memory.targetId = target.id;
+                        var target = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+                        creep.memory.targetId = (target != null) ? target.id : null;
 
                         if(target != null) {
                             switch(creep.harvest(target)) {
@@ -40,20 +40,20 @@ module.exports = {
                             }// =====
                         } else {
                             creep.memory.targetId = null;
-                            creep.memory.state = Constants.States.IDLE;
+                            creep.memory.state = Constants.WorkerStates.IDLE;
                         }// =====
                     } else {
                         creep.memory.targetId = null;
-                        creep.memory.state = Constants.States.SUPPLYING;
+                        creep.memory.state = Constants.WorkerStates.SUPPLYING;
                     }// =====
                     break;
             // ==============================
                     
             // ----- IDLE -------------------
                 default:
-                case Constants.States.IDLE:
+                case Constants.WorkerStates.IDLE:
                     if(creep.store.getFreeCapacity() > 0) {
-                        creep.memory.state = Constants.States.HARVESTING;
+                        creep.memory.state = Constants.WorkerStates.HARVESTING;
                     } else {
                         var target = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
                                 filter: (structure) => {
@@ -66,15 +66,15 @@ module.exports = {
                         });// =====
                         if(target != null) {
                             creep.memory.targetId = target.id;
-                            creep.memory.state = Constants.States.SUPPLYING;
+                            creep.memory.state = Constants.WorkerStates.SUPPLYING;
                         }// =====
                     }// =====
                     break;
             // ==============================
                     
             // ----- SUPPLYING --------------
-                case Constants.States.SUPPLYING:
-                    var target = (creep.memory.targetId != null) ? Game.getObjectById(creep.memory.targetId) : creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
+                case Constants.WorkerStates.SUPPLYING:
+                    var target = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
                             filter: (structure) => {
                                 return (structure.structureType == STRUCTURE_EXTENSION ||
                                         structure.structureType == STRUCTURE_SPAWN ||
@@ -83,7 +83,7 @@ module.exports = {
                                         structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
                             }
                     });// =====
-                    if(creep.memory.targetId == null && target != null) creep.memory.targetId = target.id;
+                    creep.memory.targetId = (target != null) ? target.id : null;
                     
                     if(target != null) {
                         switch(creep.transfer(target, RESOURCE_ENERGY)) {
@@ -91,7 +91,7 @@ module.exports = {
                             case OK:
                                 if(creep.store.getFreeCapacity() == creep.store.getCapacity()) {
                                     creep.memory.targetId = null;
-                                    creep.memory.state = Constants.States.HARVESTING;
+                                    creep.memory.state = Constants.WorkerStates.HARVESTING;
                                 }// =====
                                 break;
                             case ERR_NOT_IN_RANGE:
@@ -103,7 +103,7 @@ module.exports = {
                         }// =====
                     } else {
                         creep.memory.targetId = null;
-                        creep.memory.state = Constants.States.IDLE;
+                        creep.memory.state = Constants.WorkerStates.IDLE;
                     }// =====
                     break;
             // ==============================

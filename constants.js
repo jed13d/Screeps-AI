@@ -1,15 +1,6 @@
 
 module.exports = {
     
-    States: {
-        ATTACKING: 'attacking',
-        BUILDING: 'building',
-        HARVESTING: 'harvesting',
-        IDLE: 'idle',
-        SUPPLYING: 'supplying',
-        UPGRADING: 'upgrading',
-    },// ==============================
-    
     Roles: {
         BUILD: 'build',
         GENERAL: 'general',
@@ -17,6 +8,15 @@ module.exports = {
         MELEE: 'melee',
         RANGE: 'range',
         UPGRADE: 'upgrade',
+    },// ==============================
+    
+    WorkerStates: {
+        ATTACKING: 'attacking',
+        BUILDING: 'building',
+        HARVESTING: 'harvesting',
+        IDLE: 'idle',
+        SUPPLYING: 'supplying',
+        UPGRADING: 'upgrading',
     },// ==============================
     
     /*BODYPART_COST: {
@@ -146,6 +146,11 @@ module.exports = {
     },// ==============================
 
     HeaderOutput: function() {
+        for(var i in Memory.creeps) {
+            if(!Game.creeps[i]) {
+                delete Memory.creeps[i];
+            }// =====
+        }// =====
         console.log("======================TICK", Game.time, "======================");
         console.log("CPU:", this.StringifyObject(Game.cpu));
     },// ==============================

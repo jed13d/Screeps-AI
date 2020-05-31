@@ -17,12 +17,12 @@ module.exports = {
             switch(creep.memory.state) {
                 
             // ----- BUILDING ---------------
-                case Constants.States.BUILDING:
+                case Constants.WorkerStates.BUILDING:
                     /**
                      * If there are construction sites, build, otherwise, upgrade
                      */
-                    var target = (creep.memory.targetId != null) ? Game.getObjectById(creep.memory.targetId) : creep.pos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES);
-                    if(creep.memory.targetId == null && target != null) creep.memory.targetId = target.id;
+                    var target = creep.pos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES);
+                    creep.memory.targetId = (target != null) ? target.id : null;
 
                     if(target != null) {
                         switch(creep.build(target)) {
@@ -30,7 +30,7 @@ module.exports = {
                             case OK:
                                 if(creep.store.getFreeCapacity() == creep.store.getCapacity()) {
                                     creep.memory.targetId = null;
-                                    creep.memory.state = Constants.States.HARVESTING;
+                                    creep.memory.state = Constants.WorkerStates.HARVESTING;
                                 }// =====
                                 break;
                             case ERR_INVALID_TARGET:
@@ -41,7 +41,7 @@ module.exports = {
                                 break;
                             case ERR_NOT_ENOUGH_RESOURCES:
                                 creep.memory.targetId = null;
-                                creep.memory.state = Constants.States.HARVESTING;
+                                creep.memory.state = Constants.WorkerStates.HARVESTING;
                                 break;
                             case ERR_NO_BODYPART:
                                 creep.suicide();
@@ -49,15 +49,20 @@ module.exports = {
                         }// =====
                     } else {
                         creep.memory.targetId = null;
-                        creep.memory.state = Constants.States.IDLE;
+                        creep.memory.state = Constants.WorkerStates.IDLE;
                     }// =====
             // ==============================
                     
             // ----- HARVESTING -------------
-                case Constants.States.HARVESTING:
+                case Constants.WorkerStates.HARVESTING:
                     if(creep.store.getFreeCapacity() > 0) {
-                        var target = (creep.memory.targetId != null) ? Game.getObjectById(creep.memory.targetId) : creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
-                        if(creep.memory.targetId == null && target != null) creep.memory.targetId = target.id;
+                        var target = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
+                            filter: (structure) => {
+                                return structure.structureType == STRUCTURE_CONTAINER && 
+                                structure.store.getUsedCapacity(RESOURCE_ENERGY) > creep.store.getFreeCapacity();
+                            }});// =====
+                        if(target == null) target = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+                        creep.memory.targetId = (target != null) ? target.id : null;
 
                         if(target != null) {
                             switch(creep.harvest(target)) {
@@ -77,25 +82,25 @@ module.exports = {
                             }// =====
                         } else {
                             creep.memory.targetId = null;
-                            creep.memory.state = Constants.States.IDLE;
+                            creep.memory.state = Constants.WorkerStates.IDLE;
                         }// =====
                     } else {
                         creep.memory.targetId = null;
-                        creep.memory.state = Constants.States.BUILDING;
+                        creep.memory.state = Constants.WorkerStates.BUILDING;
                     }// =====
                     break;
             // ==============================
                     
             // ----- IDLE -------------------
                 default:
-                case Constants.States.IDLE:
+                case Constants.WorkerStates.IDLE:
                     if(creep.store.getFreeCapacity() > 0) {
-                        creep.memory.state = Constants.States.HARVESTING;
+                        creep.memory.state = Constants.WorkerStates.HARVESTING;
                     } else {
                         var target = creep.pos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES);
                         if(target != null) {
                             creep.memory.targetId = target.id;
-                            creep.memory.state = Constants.States.BUILDING;
+                            creep.memory.state = Constants.WorkerStates.BUILDING;
                         }// =====
                     }// =====
                     break;

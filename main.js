@@ -18,7 +18,8 @@ module.exports.loop = function () {
         
         managerCreep.run(Game.rooms[name]);
 
-        console.log("Construction sites remaining:", Game.rooms[name].find(FIND_MY_CONSTRUCTION_SITES).length);
+        var sitesCount = Game.rooms[name].find(FIND_MY_CONSTRUCTION_SITES).length;
+        if(sitesCount > 0) console.log("Construction sites remaining:", sitesCount);
         
         const elapsed = Game.cpu.getUsed() - startCpu;
         console.log("Room", name, "has used", elapsed, "CPU time");

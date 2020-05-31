@@ -17,12 +17,12 @@ module.exports = {
             switch(creep.memory.state) {
                 
             // ----- BUILDING ---------------
-                case Constants.States.BUILDING:
+                case Constants.WorkerStates.BUILDING:
                     /**
                      * If there are construction sites, build, otherwise, upgrade
                      */
-                    var target = (creep.memory.targetId == null) ? creep.pos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES) : Game.getObjectById(creep.memory.targetId) == null ? creep.pos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES) : Game.getObjectById(creep.memory.targetId);
-                    if(creep.memory.targetId == null && target != null) creep.memory.targetId = target.id;
+                    var target = creep.pos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES);
+                    creep.memory.targetId = (target != null) ? target.id : null;
 
                     if(target != null) {
                         switch(creep.build(target)) {
@@ -30,7 +30,7 @@ module.exports = {
                             case OK:
                                 if(creep.store.getFreeCapacity() == creep.store.getCapacity()) {
                                     creep.memory.targetId = null;
-                                    creep.memory.state = Constants.States.HARVESTING;
+                                    creep.memory.state = Constants.WorkerStates.HARVESTING;
                                 }// =====
                                 break;
                             case ERR_INVALID_TARGET:
@@ -41,7 +41,7 @@ module.exports = {
                                 break;
                             case ERR_NOT_ENOUGH_RESOURCES:
                                 creep.memory.targetId = null;
-                                creep.memory.state = Constants.States.HARVESTING;
+                                creep.memory.state = Constants.WorkerStates.HARVESTING;
                                 break;
                             case ERR_NO_BODYPART:
                                 creep.suicide();
@@ -49,15 +49,16 @@ module.exports = {
                         }// =====
                     } else {
                         creep.memory.targetId = null;
-                        creep.memory.state = Constants.States.UPGRADING;
+                        creep.memory.state = Constants.WorkerStates.UPGRADING;
                     }// =====
+                    break;
             // ==============================
                     
             // ----- HARVESTING -------------
-                case Constants.States.HARVESTING:
+                case Constants.WorkerStates.HARVESTING:
                     if(creep.store.getFreeCapacity() > 0) {
-                        var target = (creep.memory.targetId != null) ? Game.getObjectById(creep.memory.targetId) : creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
-                        if(creep.memory.targetId == null && target != null) creep.memory.targetId = target.id;
+                        var target = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+                        creep.memory.targetId = (target != null) ? target.id : null;
 
                         if(target != null) {
                             switch(creep.harvest(target)) {
@@ -77,25 +78,25 @@ module.exports = {
                             }// =====
                         } else {
                             creep.memory.targetId = null;
-                            creep.memory.state = Constants.States.IDLE;
+                            creep.memory.state = Constants.WorkerStates.IDLE;
                         }// =====
                     } else {
                         creep.memory.targetId = null;
-                        creep.memory.state = Constants.States.SUPPLYING;
+                        creep.memory.state = Constants.WorkerStates.SUPPLYING;
                     }// =====
                     break;
             // ==============================
                     
             // ----- IDLE -------------------
                 default:
-                case Constants.States.IDLE:
-                    creep.memory.state = Constants.States.HARVESTING;
+                case Constants.WorkerStates.IDLE:
+                    creep.memory.state = Constants.WorkerStates.HARVESTING;
                     break;
             // ==============================
                     
             // ----- SUPPLYING --------------
-                case Constants.States.SUPPLYING:
-                    var target = (creep.memory.targetId != null) ? Game.getObjectById(creep.memory.targetId) : creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
+                case Constants.WorkerStates.SUPPLYING:
+                    var target = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
                             filter: (structure) => {
                                 return (structure.structureType == STRUCTURE_EXTENSION ||
                                         structure.structureType == STRUCTURE_SPAWN ||
@@ -104,7 +105,7 @@ module.exports = {
                                         structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
                             }
                     });// =====
-                    if(creep.memory.targetId == null && target != null) creep.memory.targetId = target.id;
+                    creep.memory.targetId = (target != null) ? target.id : null;
                     
                     if(target != null) {
                         switch(creep.transfer(target, RESOURCE_ENERGY)) {
@@ -112,7 +113,7 @@ module.exports = {
                             case OK:
                                 if(creep.store.getFreeCapacity() == creep.store.getCapacity()) {
                                     creep.memory.targetId = null;
-                                    creep.memory.state = Constants.States.HARVESTING;
+                                    creep.memory.state = Constants.WorkerStates.HARVESTING;
                                 }// =====
                                 break;
                             case ERR_NOT_IN_RANGE:
@@ -124,13 +125,13 @@ module.exports = {
                         }// =====
                     } else {
                         creep.memory.targetId = null;
-                        creep.memory.state = Constants.States.BUILDING;
+                        creep.memory.state = Constants.WorkerStates.BUILDING;
                     }// =====
                     break;
             // ==============================
                     
             // ----- UPGRADING --------------
-                case Constants.States.UPGRADING:
+                case Constants.WorkerStates.UPGRADING:
                     switch(creep.upgradeController(creep.room.controller)) {
                         default:
                         case OK:
@@ -139,7 +140,7 @@ module.exports = {
                             creep.moveTo(creep.room.controller);
                             break;
                         case ERR_NOT_ENOUGH_RESOURCES:
-                            creep.memory.state = Constants.States.HARVESTING;
+                            creep.memory.state = Constants.WorkerStates.HARVESTING;
                             break;
                         case ERR_NO_BODYPART:
                             creep.suicide();

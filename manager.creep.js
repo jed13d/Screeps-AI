@@ -16,17 +16,6 @@ module.exports = {
         
         let allCreepsInRoom = roomObj.find(FIND_MY_CREEPS);
         console.log("Number of workers:", allCreepsInRoom.length);
-
-        /**
-         * Set desired number of creeps based on various needs.
-         */
-        if(roomObj.memory[LOOK_CREEPS] == undefined) roomObj.memory[LOOK_CREEPS] = {};
-        roomObj.memory[LOOK_CREEPS][Constants.Roles.BUILD] = (roomObj.controller.level > 1 && roomObj.find(FIND_MY_CONSTRUCTION_SITES).length > 0) ? {max: 2} : {max: 0};
-        roomObj.memory[LOOK_CREEPS][Constants.Roles.GENERAL] = (roomObj.controller.level < 2) ? {max: 3} : {max: 0};
-        roomObj.memory[LOOK_CREEPS][Constants.Roles.LOCAL_ENERGY_HARVEST] = (roomObj.controller.level > 1) ? {max: 2} : {max: 0};
-        roomObj.memory[LOOK_CREEPS][Constants.Roles.MELEE] = {max: 0};
-        roomObj.memory[LOOK_CREEPS][Constants.Roles.RANGE] = {max: 0};
-        roomObj.memory[LOOK_CREEPS][Constants.Roles.UPGRADE] = (roomObj.controller.level > 1) ? {max: 4} : {max: 0};
         
         /**
          * Spawn workers, only if energy is at max capacity
