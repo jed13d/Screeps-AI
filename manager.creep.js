@@ -4,10 +4,9 @@ const roleLNHarvester = require('role.local.energy.harvester');
 const roleUpgrader = require('role.upgrader');
 const Constants = require('constants');
 
-var devMessage = "Developer Test Message";
-// console.log(devMessage);
+// Constants.DevOutput();
 // Constants.OutputObject();
-// Constants.StringifyObject();
+// JSON.stringify();
 
 module.exports = {
     
@@ -15,7 +14,7 @@ module.exports = {
     run: function(roomObj) {
         
         let allCreepsInRoom = roomObj.find(FIND_MY_CREEPS);
-        console.log("Number of workers:", allCreepsInRoom.length);
+        // console.log("Number of workers:", allCreepsInRoom.length);
         
         /**
          * Spawn workers, only if energy is at max capacity
@@ -25,11 +24,12 @@ module.exports = {
             for(let workerRole in Constants.Roles) {
                 let roleTitle = Constants.Roles[workerRole];
                 
+                // console.log(roleTitle, "current:", _.filter(allCreepsInRoom, (creep) => creep.memory.role === roleTitle).length, "max", roomObj.memory[LOOK_CREEPS][roleTitle].max)
                 /**
                  * Build first needed worker found. Then, report the spawning.
                  */ 
                 if(_.filter(allCreepsInRoom, (creep) => creep.memory.role === roleTitle).length < roomObj.memory[LOOK_CREEPS][roleTitle].max) {
-                    let workerName = roleTitle + Game.time;
+                    let workerName = roleTitle +'_'+ Game.time;
                     let rSpawn = roomObj.find(FIND_MY_SPAWNS)[0];
                     
                     // used for choosing largest creep build option
@@ -60,7 +60,7 @@ module.exports = {
          */
         for(let worker of allCreepsInRoom) {
 
-            console.log(worker, ":", Constants.StringifyObject(worker.memory));
+            console.log(worker, ":", worker.ticksToLive, ":", JSON.stringify(worker.memory));
 
             switch(worker.memory.role) {
                 case Constants.Roles.BUILD:

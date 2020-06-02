@@ -1,17 +1,16 @@
 const Constants = require('constants');
 
-var devMessage = "Developer Test Message";
-// console.log(devMessage);
+// Constants.DevOutput();
 // Constants.OutputObject();
-// Constants.StringifyObject();
+// JSON.stringify();
 
 module.exports = {
     
     /** @param {Creep} creep **/
     run: function(creep) {
-            // console.log(creep, ":", Constants.StringifyObject(creep.body));
-            // console.log(creep, ":", Constants.StringifyObject(creep.memory));
-            // console.log(creep, ":", creep.memory.state, "\n\t:", Constants.StringifyObject(creep));
+            // console.log(creep, ":", JSON.stringify(creep.body));
+            // console.log(creep, ":", JSON.stringify(creep.memory));
+            // console.log(creep, ":", creep.memory.state, "\n\t:", JSON.stringify(creep));
             
             
             switch(creep.memory.state) {
@@ -52,10 +51,11 @@ module.exports = {
             // ----- IDLE -------------------
                 default:
                 case Constants.WorkerStates.IDLE:
+                    if(creep.ticksToLive < 100) creep.suicide();
                     if(creep.store.getFreeCapacity() > 0) {
                         creep.memory.state = Constants.WorkerStates.HARVESTING;
                     } else {
-                        var target = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
+                        var target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
                                 filter: (structure) => {
                                     return (structure.structureType == STRUCTURE_EXTENSION ||
                                             structure.structureType == STRUCTURE_SPAWN ||
@@ -74,7 +74,7 @@ module.exports = {
                     
             // ----- SUPPLYING --------------
                 case Constants.WorkerStates.SUPPLYING:
-                    var target = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
+                    var target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
                             filter: (structure) => {
                                 return (structure.structureType == STRUCTURE_EXTENSION ||
                                         structure.structureType == STRUCTURE_SPAWN ||
@@ -90,6 +90,7 @@ module.exports = {
                             default:
                             case OK:
                                 if(creep.store.getFreeCapacity() == creep.store.getCapacity()) {
+                                    if(creep.ticksToLive < 100) creep.suicide();
                                     creep.memory.targetId = null;
                                     creep.memory.state = Constants.WorkerStates.HARVESTING;
                                 }// =====

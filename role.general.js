@@ -1,9 +1,8 @@
 const Constants = require('constants');
 
-var devMessage = "Developer Test Message";
-// console.log(devMessage);
+// Constants.DevOutput();
 // Constants.OutputObject();
-// Constants.StringifyObject();
+// JSON.stringify();
 
 /**
  * The General Role contains all states (except combat).
@@ -29,6 +28,7 @@ module.exports = {
                             default:
                             case OK:
                                 if(creep.store.getFreeCapacity() == creep.store.getCapacity()) {
+                                    if(creep.ticksToLive < 100) creep.suicide();
                                     creep.memory.targetId = null;
                                     creep.memory.state = Constants.WorkerStates.HARVESTING;
                                 }// =====
@@ -40,6 +40,7 @@ module.exports = {
                                 creep.moveTo(target);
                                 break;
                             case ERR_NOT_ENOUGH_RESOURCES:
+                                if(creep.ticksToLive < 100) creep.suicide();
                                 creep.memory.targetId = null;
                                 creep.memory.state = Constants.WorkerStates.HARVESTING;
                                 break;
@@ -90,13 +91,14 @@ module.exports = {
             // ----- IDLE -------------------
                 default:
                 case Constants.WorkerStates.IDLE:
+                    if(creep.ticksToLive < 100) creep.suicide();
                     creep.memory.state = Constants.WorkerStates.HARVESTING;
                     break;
             // ==============================
                     
             // ----- SUPPLYING --------------
                 case Constants.WorkerStates.SUPPLYING:
-                    var target = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
+                    var target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
                             filter: (structure) => {
                                 return (structure.structureType == STRUCTURE_EXTENSION ||
                                         structure.structureType == STRUCTURE_SPAWN ||
@@ -112,6 +114,7 @@ module.exports = {
                             default:
                             case OK:
                                 if(creep.store.getFreeCapacity() == creep.store.getCapacity()) {
+                                    if(creep.ticksToLive < 100) creep.suicide();
                                     creep.memory.targetId = null;
                                     creep.memory.state = Constants.WorkerStates.HARVESTING;
                                 }// =====
@@ -140,6 +143,7 @@ module.exports = {
                             creep.moveTo(creep.room.controller);
                             break;
                         case ERR_NOT_ENOUGH_RESOURCES:
+                            if(creep.ticksToLive < 100) creep.suicide();
                             creep.memory.state = Constants.WorkerStates.HARVESTING;
                             break;
                         case ERR_NO_BODYPART:

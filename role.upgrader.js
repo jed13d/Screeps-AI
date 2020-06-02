@@ -1,17 +1,16 @@
 const Constants = require('constants');
 
-var devMessage = "Developer Test Message";
-// console.log(devMessage);
+// Constants.DevOutput();
 // Constants.OutputObject();
-// Constants.StringifyObject();
+// JSON.stringify();
 
 module.exports = {
     
     /** @param {Creep} creep **/
     run: function(creep) {
-            // console.log(creep, ":", Constants.StringifyObject(creep.body));
-            // console.log(creep, ":", Constants.StringifyObject(creep.memory));
-            // console.log(creep, ":", creep.memory.state, "\n\t:", Constants.StringifyObject(creep));
+            // console.log(creep, ":", JSON.stringify(creep.body));
+            // console.log(creep, ":", JSON.stringify(creep.memory));
+            // console.log(creep, ":", creep.memory.state, "\n\t:", JSON.stringify(creep));
             
             
             switch(creep.memory.state) {
@@ -20,7 +19,7 @@ module.exports = {
                 case Constants.WorkerStates.HARVESTING:
                     if(creep.store.getFreeCapacity() > 0) {
                         // find the container
-                        var target = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
+                        var target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
                             filter: (structure) => {
                                 return structure.structureType == STRUCTURE_CONTAINER && 
                                 structure.store.getUsedCapacity(RESOURCE_ENERGY) > creep.store.getFreeCapacity();
@@ -52,9 +51,10 @@ module.exports = {
             // ----- IDLE -------------------
                 default:
                 case Constants.WorkerStates.IDLE:
+                    if(creep.ticksToLive < 100) creep.suicide();
                     if(creep.store.getFreeCapacity() > 0) {
                         // find the container
-                        var target = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, {
+                        var target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
                             filter: (structure) => {
                                 return structure.structureType == STRUCTURE_CONTAINER && 
                                 structure.store.getUsedCapacity(RESOURCE_ENERGY) > creep.store.getFreeCapacity();
@@ -79,6 +79,7 @@ module.exports = {
                             creep.moveTo(creep.room.controller);
                             break;
                         case ERR_NOT_ENOUGH_RESOURCES:
+                            if(creep.ticksToLive < 100) creep.suicide();
                             creep.memory.state = Constants.WorkerStates.HARVESTING;
                             break;
                         case ERR_NO_BODYPART:

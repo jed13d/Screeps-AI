@@ -152,17 +152,12 @@ module.exports = {
             }// =====
         }// =====
         console.log("======================TICK", Game.time, "======================");
-        console.log("CPU:", this.StringifyObject(Game.cpu));
+        console.log("CPU:", JSON.stringify(Game.cpu));
     },// ==============================
     
     /** @param (object) object to output string **/
     OutputObject: function(object) {
         console.log(JSON.stringify(object));
-    },// ==============================
-    
-    /** @param (object) object to output string **/
-    StringifyObject: function(object) {
-        return JSON.stringify(object);
     },// ==============================
 
 };// ==============================
