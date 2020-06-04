@@ -5,24 +5,44 @@ const Constants = require('constants');
 // JSON.stringify();
 
 module.exports = {
+
+    getMinTicksToLive(creep) {
+        var partsWork = _.filter(creep.body, (bp) => bp.type == WORK).length;
+        var harvestTikCost = creep.store.getCapacity(RESOURCE_ENERGY) / (partsWork * HARVEST_POWER);
+        console.log("Suicide ticks: "+ (harvestTikCost + 50));
+        return (harvestTikCost + 50);
+    },
     
     /** @param {Creep} creep **/
-    run: function(creep) {
+    run: function(creep, sources, action) {
             // console.log(creep, ":", JSON.stringify(creep.body));
             // console.log(creep, ":", JSON.stringify(creep.memory));
             // console.log(creep, ":", creep.memory.state, "\n\t:", JSON.stringify(creep));
-            
-            
+
             switch(creep.memory.state) {
                     
             // ----- HARVESTING -------------
                 case Constants.WorkerStates.HARVESTING:
-                    if(creep.store.getFreeCapacity() > 0) {
-                        var target = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+                    if(creep.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
+                        var target = creep.pos.findClosestByPath(sources);
+                        var actionResult;
+
+                        switch(action) {
+                            default:
+                            case Constants.HarvesterActions.HARVEST:
+                                actionResult = creep.harvest(target);
+                                break;
+                            case Constants.HarvesterActions.PICKUP:
+                                actionResult = creep.pickup(target);
+                                break;
+                            case Constants.HarvesterActions.WITHDRAW:
+                                actionResult = creep.withdraw(target, RESOURCE_ENERGY);
+                                break;
+                        }
                         creep.memory.targetId = (target != null) ? target.id : null;
 
                         if(target != null) {
-                            switch(creep.harvest(target)) {
+                            switch(actionResult) {
                                 default:
                                 case OK:
                                     break;
@@ -51,8 +71,8 @@ module.exports = {
             // ----- IDLE -------------------
                 default:
                 case Constants.WorkerStates.IDLE:
-                    if(creep.ticksToLive < 100) creep.suicide();
-                    if(creep.store.getFreeCapacity() > 0) {
+                    if(creep.ticksToLive < this.getMinTicksToLive(creep)) creep.suicide();
+                    if(creep.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
                         creep.memory.state = Constants.WorkerStates.HARVESTING;
                     } else {
                         var target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
@@ -74,7 +94,7 @@ module.exports = {
                     
             // ----- SUPPLYING --------------
                 case Constants.WorkerStates.SUPPLYING:
-                    var target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+                    var targets = creep.room.find(FIND_STRUCTURES, {
                             filter: (structure) => {
                                 return (structure.structureType == STRUCTURE_EXTENSION ||
                                         structure.structureType == STRUCTURE_SPAWN ||
@@ -83,6 +103,15 @@ module.exports = {
                                         structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
                             }
                     });// =====
+                    // === give priority to spawns and extensions;
+                    if(targets != null) {
+                        var target = creep.pos.findClosestByPath(_.filter(targets, (t) => t.structureType === STRUCTURE_SPAWN || t.structureType === STRUCTURE_EXTENSION));
+                        if(target == null) {
+                            target = creep.pos.findClosestByPath(targets);
+                        }// =====
+                    } else {
+                        target == null;
+                    }// =====
                     creep.memory.targetId = (target != null) ? target.id : null;
                     
                     if(target != null) {
@@ -90,7 +119,7 @@ module.exports = {
                             default:
                             case OK:
                                 if(creep.store.getFreeCapacity() == creep.store.getCapacity()) {
-                                    if(creep.ticksToLive < 100) creep.suicide();
+                                    if(creep.ticksToLive < this.getMinTicksToLive(creep)) creep.suicide();
                                     creep.memory.targetId = null;
                                     creep.memory.state = Constants.WorkerStates.HARVESTING;
                                 }// =====

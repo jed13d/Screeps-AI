@@ -98,7 +98,7 @@ module.exports = {
                     
             // ----- SUPPLYING --------------
                 case Constants.WorkerStates.SUPPLYING:
-                    var target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+                    var targets = creep.room.find(FIND_STRUCTURES, {
                             filter: (structure) => {
                                 return (structure.structureType == STRUCTURE_EXTENSION ||
                                         structure.structureType == STRUCTURE_SPAWN ||
@@ -107,6 +107,15 @@ module.exports = {
                                         structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
                             }
                     });// =====
+                    // === give priority to spawns and extensions;
+                    if(targets != null) {
+                        var target = creep.pos.findClosestByPath(_.filter(targets, (t) => t.structureType === STRUCTURE_SPAWN || t.structureType === STRUCTURE_EXTENSION));
+                        if(target == null) {
+                            target = creep.pos.findClosestByPath(targets);
+                        }// =====
+                    } else {
+                        target == null;
+                    }// =====
                     creep.memory.targetId = (target != null) ? target.id : null;
                     
                     if(target != null) {

@@ -19,17 +19,22 @@ module.exports = {
                 case Constants.WorkerStates.HARVESTING:
                     if(creep.store.getFreeCapacity() > 0) {
                         // find the container
+                        var tgtIsCntr = true;
                         var target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
                             filter: (structure) => {
                                 return structure.structureType == STRUCTURE_CONTAINER && 
                                 structure.store.getUsedCapacity(RESOURCE_ENERGY) > creep.store.getFreeCapacity();
                             }
                         });// =====
-                        if(target == null) target = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+                        // fallback to source
+                        if(target == null) {
+                            target = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+                            tgtIsCntr = false;
+                        }
                         creep.memory.targetId = (target != null) ? target.id : null;
 
                         if(target != null) {
-                            switch(creep.withdraw(target, RESOURCE_ENERGY)) {
+                            switch((tgtIsCntr) ? creep.withdraw(target, RESOURCE_ENERGY) : creep.harvest(target)) {
                                 default:
                                 case ERR_FULL:
                                 case OK:
@@ -54,12 +59,18 @@ module.exports = {
                     if(creep.ticksToLive < 100) creep.suicide();
                     if(creep.store.getFreeCapacity() > 0) {
                         // find the container
+                        var tgtIsCntr = true;
                         var target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
                             filter: (structure) => {
                                 return structure.structureType == STRUCTURE_CONTAINER && 
                                 structure.store.getUsedCapacity(RESOURCE_ENERGY) > creep.store.getFreeCapacity();
                             }
                         });// =====
+                        // fallback to source
+                        if(target == null) {
+                            target = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+                            tgtIsCntr = false;
+                        }// =====
 
                         if(target != null) {
                             creep.memory.targetId = target.id;
