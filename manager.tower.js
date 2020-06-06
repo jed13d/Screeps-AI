@@ -11,8 +11,6 @@ module.exports = {
     run: function(roomObj) {
 
         for(var tower of roomObj.find(FIND_STRUCTURES, {filter: (structure) => {return (structure.structureType == STRUCTURE_TOWER);}})) {
-
-            // console.log(JSON.stringify(tower));
             roleTower.run(tower)
         }// =====
 

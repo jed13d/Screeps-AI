@@ -16,7 +16,7 @@ module.exports = {
             
         // ------------------------------
             default:
-                var NEXT_STATE = 'Building extractors';
+                var NEXT_STATE = 'Building extensions';
                 var PREV_STATE = '';
 
                 roomObj.memory[STRUCTURE_TOWER] = {};
@@ -26,8 +26,8 @@ module.exports = {
         // ==============================
             
         // ------------------------------
-            case 'Building extractors':
-                var NEXT_STATE = 'Waiting on extractors';
+            case 'Building extensions':
+                var NEXT_STATE = 'Waiting on extensions';
                 var PREV_STATE = '';
 
                 var mySites = roomObj.find(FIND_MY_CONSTRUCTION_SITES, {filter: {structureType: STRUCTURE_EXTENSION}});
@@ -52,9 +52,9 @@ module.exports = {
         // ==============================
             
         // ------------------------------
-            case 'Waiting on extractors':
+            case 'Waiting on extensions':
                 var NEXT_STATE = 'Build tower';
-                var PREV_STATE = 'Building extractors';
+                var PREV_STATE = 'Building extensions';
 
                 var mySites = roomObj.find(FIND_MY_CONSTRUCTION_SITES, {filter: {structureType: STRUCTURE_EXTENSION}});
                 var myStcrs = roomObj.find(FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_EXTENSION}});
@@ -70,10 +70,10 @@ module.exports = {
         // ------------------------------
             case 'Build tower':
                 var NEXT_STATE = 'Waiting on tower';
-                var PREV_STATE = 'Waiting on extractors';
+                var PREV_STATE = 'Waiting on extensions';
 
                 var spawnPos = roomObj.find(FIND_MY_SPAWNS)[0].pos;
-                if(roomObj.createConstructionSite(spawnPos.x - 1, spawnPos.y - 1, STRUCTURE_TOWER) == OK) {
+                if(roomObj.createConstructionSite(spawnPos.x, spawnPos.y + 4, STRUCTURE_TOWER) == OK) {
                     roomObj.memory['state'] = NEXT_STATE;
                 }// =====
 
@@ -87,8 +87,9 @@ module.exports = {
 
                 var mySites = roomObj.find(FIND_MY_CONSTRUCTION_SITES, {filter: {structureType: STRUCTURE_TOWER}});
                 if(mySites.length == 0) {
-                    var tower = roomObj.find(FIND_STRUCTURES, {filter: (structure) => {return (structure.structureType == STRUCTURE_TOWER);}})[0];
-                    roomObj.memory[STRUCTURE_TOWER][tower.id] = {state: Constants.TowerStates.IDLE};
+                    var spawnPos = roomObj.find(FIND_MY_SPAWNS)[0].pos;
+                    var tower = roomObj.pos.lookForAt(LOOK_STRUCTURES, spawnPos.x, spawnPos.y + 4)[0];
+                    roomObj.memory[STRUCTURE_TOWER][tower.id] = {state: Constants.States.IDLE};
                     roomObj.memory['state'] = NEXT_STATE;
                 }// =====
 

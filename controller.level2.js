@@ -54,7 +54,7 @@ module.exports = {
             
         // ------------------------------
             case 'Waiting on roads around spawn':
-                var NEXT_STATE = 'Building extractors';
+                var NEXT_STATE = 'Building extensions';
                 var PREV_STATE = 'Build roads';
 
                 var mySites = roomObj.find(FIND_MY_CONSTRUCTION_SITES, {filter: {structureType: STRUCTURE_ROAD}});
@@ -66,8 +66,8 @@ module.exports = {
         // ==============================
             
         // ------------------------------
-            case 'Building extractors':
-                var NEXT_STATE = 'Waiting on extractors';
+            case 'Building extensions':
+                var NEXT_STATE = 'Waiting on extensions';
                 var PREV_STATE = '';
 
                 var mySites = roomObj.find(FIND_MY_CONSTRUCTION_SITES, {filter: {structureType: STRUCTURE_EXTENSION}});
@@ -92,9 +92,9 @@ module.exports = {
         // ==============================
             
         // ------------------------------
-            case 'Waiting on extractors':
+            case 'Waiting on extensions':
                 var NEXT_STATE = 'Building containers';
-                var PREV_STATE = 'Building extractors';
+                var PREV_STATE = 'Building extensions';
 
                 var mySites = roomObj.find(FIND_MY_CONSTRUCTION_SITES, {filter: {structureType: STRUCTURE_EXTENSION}});
                 var myStcrs = roomObj.find(FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_EXTENSION}});

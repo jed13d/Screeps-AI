@@ -3,6 +3,7 @@ const roleGeneral = require('role.general');
 const roleLNHarvester = require('role.local.energy.harvester');
 const roleUpgrader = require('role.upgrader');
 const Constants = require('constants');
+const jobUtils = require('job.utils');
 
 // Constants.DevOutput();
 // Constants.OutputObject();
@@ -18,7 +19,7 @@ module.exports = {
 
         // Manual Override
         // ------------------------------
-        // roomObj.memory[LOOK_CREEPS][Constants.Roles.BUILD]                  = {max: 2};
+        // roomObj.memory[LOOK_CREEPS][Constants.Roles.BUILD]                  = {max: 3};
         // roomObj.memory[LOOK_CREEPS][Constants.Roles.GENERAL]                = {max: 0};
         // roomObj.memory[LOOK_CREEPS][Constants.Roles.LOCAL_ENERGY_HARVEST]   = {max: 6};
         // roomObj.memory[LOOK_CREEPS][Constants.Roles.MELEE]                  = {max: 0};
@@ -29,19 +30,19 @@ module.exports = {
          * Spawn workers, only if energy is at max capacity
          * Hopefully, by order of appearance in Constants.Workers{}
          */
-        if(roomObj.energyAvailable === roomObj.energyCapacityAvailable) {
+        if(roomObj.energyAvailable === roomObj.energyCapacityAvailable || (_.filter(allCreepsInRoom, (creep) => creep.memory.role === Constants.Roles.LOCAL_ENERGY_HARVEST).length <= Constants.HARDSHIP_HARVESTERS_MIN)) {
             for(let workerRole in Constants.Roles) {
                 let roleTitle = Constants.Roles[workerRole];
                 
                     /*BODYPART_COST: {
-                        TOUGH:          10,
-                        CARRY:          50,
+                        TOUGH:          10,     60,
+                        CARRY:          50,     100,
                         MOVE:           50,
-                        ATTACK:         80,
-                        WORK:           100,
-                        RANGED_ATTACK:  150,
-                        HEAL:           250,
-                        CLAIM:          600
+                        ATTACK:         80,     130,
+                        WORK:           100,    150,
+                        RANGED_ATTACK:  150,    200,
+                        HEAL:           250,    300,
+                        CLAIM:          600,    650,
                     },*/
 
                 /**
@@ -53,34 +54,45 @@ module.exports = {
                     
                     // build algorithms based on role     MAX_CREEP_SIZE
                     var parts = [];
+                    var partsCtr = 0;
+                    var numWork = 0
+                    var numCarry = 0;
+                    var numMoves = 0;
                     var nrgAvail = roomObj.energyCapacityAvailable;
-                    var options = {memory: {role: roleTitle, state: Constants.WorkerStates.IDLE, targetId: null}}
+                    var options = {memory: {role: roleTitle, state: Constants.States.IDLE}}
                     switch(roleTitle) {
                         case Constants.Roles.BUILD:
                         default:
                         case Constants.Roles.GENERAL:
-                            var numWork = Math.floor((nrgAvail - (BODYPART_COST[CARRY] + BODYPART_COST[MOVE])) / (BODYPART_COST[WORK] + BODYPART_COST[MOVE]));
-                            var numMoves = 1;
-                            for(var n = 0; n < numWork && ((parts.length + numMoves + 1) < (MAX_CREEP_SIZE - 1)); n++) {
-                                parts.push(WORK);
-                                numMoves++;
-                            }// =====
-                            parts.push(CARRY);
-                            for(numMoves; numMoves > 0; numMoves--) {
-                                parts.push(MOVE);
+                            var workCarryRatio = 2;
+                            while(partsCtr < MAX_CREEP_SIZE && nrgAvail > ((BODYPART_COST[WORK] + BODYPART_COST[MOVE]) + (BODYPART_COST[CARRY] + BODYPART_COST[MOVE]))) {
+                                if(nrgAvail > (BODYPART_COST[CARRY] + BODYPART_COST[MOVE])) {
+                                    numCarry++;
+                                    numMoves++;
+                                    nrgAvail -= (BODYPART_COST[CARRY] + BODYPART_COST[MOVE]);
+                                }// =====
+                                for(var n = 0; n < workCarryRatio && nrgAvail > (BODYPART_COST[WORK] + BODYPART_COST[MOVE]); n++) {
+                                    numWork++;
+                                    numMoves++;
+                                    nrgAvail -= (BODYPART_COST[WORK] + BODYPART_COST[MOVE]);
+                                }// =====
                             }// =====
                             // Constants.OutputObject(parts);
                             break;
                         case Constants.Roles.LOCAL_ENERGY_HARVEST:
-                            var numCarry = Math.floor((nrgAvail - (BODYPART_COST[WORK] + BODYPART_COST[MOVE])) / (BODYPART_COST[CARRY] + BODYPART_COST[MOVE]));
-                            var numMoves = 1;
-                            parts.push(WORK);
-                            for(var n = 0; n < numCarry && ((parts.length + numMoves + 1) < (MAX_CREEP_SIZE - 1)); n++) {
-                                parts.push(CARRY);
-                                numMoves++;
-                            }// =====
-                            for(var n = 0; n < numMoves; n++) {
-                                parts.push(MOVE);
+                            var carryWorkRatio = 3;
+                            nrgAvail = (_.filter(allCreepsInRoom, (creep) => creep.memory.role === roleTitle).length > Constants.HARDSHIP_HARVESTERS_MIN) ? roomObj.energyCapacityAvailable : roomObj.energyAvailable;
+                            while(partsCtr < MAX_CREEP_SIZE && nrgAvail > ((BODYPART_COST[WORK] + BODYPART_COST[MOVE]) + (BODYPART_COST[CARRY] + BODYPART_COST[MOVE]))) {
+                                if(nrgAvail > (BODYPART_COST[WORK] + BODYPART_COST[MOVE])) {
+                                    numWork++;
+                                    numMoves++;
+                                    nrgAvail -= (BODYPART_COST[WORK] + BODYPART_COST[MOVE]);
+                                }// =====
+                                for(var n = 0; n < carryWorkRatio && nrgAvail > (BODYPART_COST[CARRY] + BODYPART_COST[MOVE]); n++) {
+                                    numCarry++;
+                                    numMoves++;
+                                    nrgAvail -= (BODYPART_COST[CARRY] + BODYPART_COST[MOVE]);
+                                }// =====
                             }// =====
                             // Constants.OutputObject(parts);
                             break;
@@ -89,16 +101,23 @@ module.exports = {
                         case Constants.Roles.RANGE:
                             break;
                         case Constants.Roles.UPGRADE:
-                            var numWork = Math.floor((nrgAvail - (BODYPART_COST[CARRY] + BODYPART_COST[MOVE])) / (BODYPART_COST[WORK]));
-                            for(var n = 0; n < numWork && ((parts.length + 2) < (MAX_CREEP_SIZE - 1)); n++) {
-                                parts.push(WORK);
-                            }// =====
-                            parts.push(CARRY);
-                            parts.push(MOVE);
+                            numWork = Math.floor((nrgAvail - (BODYPART_COST[CARRY] + BODYPART_COST[MOVE])) / (BODYPART_COST[WORK]));
+                            numCarry = 1;
+                            numMoves = 1;
                             // Constants.OutputObject(parts);
                             break;
                     }// =====
                     
+                    for(var n = 0; n < numWork; n++) {
+                        parts.push(WORK);
+                    }// =====
+                    for(var n = 0; n < numCarry; n++) {
+                        parts.push(CARRY);
+                    }// =====
+                    for(var n = 0; n < numMoves; n++) {
+                        parts.push(MOVE);
+                    }// =====
+
                     // attempt to spawn
                     if(spawn.spawnCreep(parts, workerName, options) == OK) break;
 
@@ -106,26 +125,6 @@ module.exports = {
                 
             }// ===== for
         }// ===== if
-
-        /**
-         * Find sources for harvester (done once here so each harvester doesn't do this)
-         */
-        var harvestingSources;
-        var harvesterAction = null;
-        // look for dropped resources
-        harvestingSources = roomObj.find(FIND_DROPPED_RESOURCES);
-        harvesterAction = (harvestingSources.length > 0) ? Constants.HarvesterActions.PICKUP : null;
-        // look for ruins with resources
-        if(harvesterAction == null) {
-            harvestingSources = roomObj.find(FIND_RUINS, {filter: (ruin) => {return ruin.store.getUsedCapacity(RESOURCE_ENERGY) > 0;}});
-            harvesterAction = (harvestingSources.length > 0) ? Constants.HarvesterActions.WITHDRAW : null;
-        }// =====
-        // look for active sources
-        if(harvesterAction == null) {
-            harvestingSources = roomObj.find(FIND_SOURCES_ACTIVE);
-            harvesterAction = (harvestingSources.length > 0) ? Constants.HarvesterActions.HARVEST : null;
-        }// =====
-        console.log(harvesterAction);
 
         /**
          * Orders for creeps based on role.
@@ -147,7 +146,7 @@ module.exports = {
                     roleGeneral.run(worker);
                     break;
                 case Constants.Roles.LOCAL_ENERGY_HARVEST:
-                    roleLNHarvester.run(worker, harvestingSources, harvesterAction);
+                    roleLNHarvester.run(worker);
                     break;
                 case Constants.Roles.UPGRADE:
                     roleUpgrader.run(worker);

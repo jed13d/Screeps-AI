@@ -10,26 +10,24 @@ module.exports = {
     run: function(towerObj) {
 
         switch(towerObj.room.memory[STRUCTURE_TOWER][towerObj.id].state) {
-            case Constants.TowerStates.ATTACKING:
-                var hostileCreeps = towerObj.room.find(FIND_HOSTILE_CREEPS);
-                if(hostileCreeps != null && hostileCreeps.length > 0) {
-                    towerObj.attack(towerObj.pos.findClosestByPath(hostileCreeps));
-                    towerObj.room.memory[STRUCTURE_TOWER][towerObj.id].state = Constants.TowerStates.ATTACKING;
+            case Constants.States.ATTACKING:
+                if(towerObj.room.memory.jobTargets[Constants.RoomTargets.HOSTILES].length > 0) {
+                    towerObj.attack(towerObj.pos.findClosestByRange(towerObj.room.memory.jobTargets[Constants.RoomTargets.HOSTILES]));
+                    towerObj.room.memory[STRUCTURE_TOWER][towerObj.id].state = Constants.States.ATTACKING;
                 } else {
-                    towerObj.room.memory[STRUCTURE_TOWER][towerObj.id].state = Constants.TowerStates.IDLE;
+                    towerObj.room.memory[STRUCTURE_TOWER][towerObj.id].state = Constants.States.IDLE;
                 }// =====
                 break;
-            case Constants.TowerStates.HEALING:
+            case Constants.States.HEALING:
                 break;
             default:
-            case Constants.TowerStates.IDLE:
-                var hostileCreeps = towerObj.room.find(FIND_HOSTILE_CREEPS);
-                if(hostileCreeps != null && hostileCreeps.length > 0) {
-                    towerObj.attack(towerObj.pos.findClosestByPath(hostileCreeps));
-                    towerObj.room.memory[STRUCTURE_TOWER][towerObj.id].state = Constants.TowerStates.ATTACKING;
+            case Constants.States.IDLE:
+                if(towerObj.room.memory.jobTargets[Constants.RoomTargets.HOSTILES].length > 0) {
+                    towerObj.attack(towerObj.pos.findClosestByRange(towerObj.room.memory.jobTargets[Constants.RoomTargets.HOSTILES]));
+                    towerObj.room.memory[STRUCTURE_TOWER][towerObj.id].state = Constants.States.ATTACKING;
                 }// =====
                 break;
-            case Constants.TowerStates.REPAIRING:
+            case Constants.States.REPAIRING:
                 break;
         }// =====
 

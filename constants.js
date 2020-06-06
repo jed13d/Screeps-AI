@@ -15,23 +15,31 @@ module.exports = {
         RANGE: 'range',
         UPGRADE: 'upgrade',
     },// ==============================
-    
-    TowerStates: {
-        ATTACKING: 'attacking',
-        HEALING: 'healing',
-        IDLE: 'idle',
-        REPAIRING: 'repairing',
+
+    RoomTargets: {
+        ACTIVE_NRG: 'activeSources',
+        DROPPED_NRG: 'droppedNrg',
+        CONTAINERS_NEAR_CTLR: 'containersNearController',
+        HOSTILES: 'hostiles',
+        MY_CONSTRUCTION_SITES: 'myConstruction',
+        RUINS_WITH_NRG: 'ruinsWithEnergy',
+        STRUCTURES_NEED_REPAIRS: 'structuresNeedRepairs',
+        STRUCTURES_TO_SUPPLY: 'structuresToSupply',
+        WALLS_NEED_BULKING: 'wallsNeedBulking',
     },// ==============================
-    
-    WorkerStates: {
+
+    States: {
         ATTACKING: 'attacking',
         BUILDING: 'building',
         HARVESTING: 'harvesting',
+        HEALING: 'healing',
         IDLE: 'idle',
         REPAIRING: 'repairing',
         SUPPLYING: 'supplying',
         UPGRADING: 'upgrading',
     },// ==============================
+
+    HARDSHIP_HARVESTERS_MIN: 2,
     
     DevOutput: function() {
         console.log("Developer Output.");

@@ -17,7 +17,7 @@ module.exports = {
     /** @param (roomObj) room object **/
     run: function(roomObj) {
         
-        console.log("- Controller Level:", roomObj.controller.level, "State:", roomObj.memory['state']);
+        console.log("Room:", JSON.stringify(roomObj), "- Controller Level:", roomObj.controller.level, "- State:", roomObj.memory['state']);
 
         /**
          * The '8' states of the controller

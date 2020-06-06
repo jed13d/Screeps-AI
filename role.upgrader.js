@@ -16,72 +16,61 @@ module.exports = {
             switch(creep.memory.state) {
                     
             // ----- HARVESTING -------------
-                case Constants.WorkerStates.HARVESTING:
+                case Constants.States.HARVESTING:
                     if(creep.store.getFreeCapacity() > 0) {
-                        // find the container
-                        var tgtIsCntr = true;
-                        var target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
-                            filter: (structure) => {
-                                return structure.structureType == STRUCTURE_CONTAINER && 
-                                structure.store.getUsedCapacity(RESOURCE_ENERGY) > creep.store.getFreeCapacity();
-                            }
-                        });// =====
-                        // fallback to source
-                        if(target == null) {
-                            target = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
-                            tgtIsCntr = false;
-                        }
-                        creep.memory.targetId = (target != null) ? target.id : null;
+                        var target = null;
+                        var action;
+                        if(creep.room.memory.jobTargets[Constants.RoomTargets.CONTAINERS_NEAR_CTLR].length > 0) {
+                            target = creep.pos.findClosestByRange(creep.room.memory.jobTargets[Constants.RoomTargets.CONTAINERS_NEAR_CTLR]);
+                            action = Constants.HarvesterActions.WITHDRAW;
+                        } else if(creep.room.memory.jobTargets[Constants.RoomTargets.ACTIVE_NRG].length > 0) {
+                            target = creep.pos.findClosestByPath(creep.room.memory.jobTargets[Constants.RoomTargets.ACTIVE_NRG]);
+                            action = Constants.HarvesterActions.HARVEST;
+                        }// =====
 
                         if(target != null) {
-                            switch((tgtIsCntr) ? creep.withdraw(target, RESOURCE_ENERGY) : creep.harvest(target)) {
+                            var actionResult;
+                            switch(action) {
+                                default:
+                                case Constants.HarvesterActions.HARVEST:
+                                    actionResult = creep.harvest(target);
+                                    break;
+                                case Constants.HarvesterActions.WITHDRAW:
+                                    actionResult = creep.withdraw(target, RESOURCE_ENERGY);
+                                    break;
+                            }// =====
+
+                            switch(actionResult) {
                                 default:
                                 case ERR_FULL:
                                 case OK:
-                                    creep.memory.state = Constants.WorkerStates.UPGRADING;
+                                    creep.memory.state = Constants.States.UPGRADING;
                                     break;
                                 case ERR_NOT_IN_RANGE:
                                     creep.moveTo(target);
                                     break;
                             }// =====
                         } else {
-                            creep.memory.state = Constants.WorkerStates.IDLE;
+                            creep.memory.state = Constants.States.IDLE;
                         }// =====
                     } else {
-                        creep.memory.state = Constants.WorkerStates.UPGRADING;
+                        creep.memory.state = Constants.States.UPGRADING;
                     }// =====
                     break;
             // ==============================
                     
             // ----- IDLE -------------------
                 default:
-                case Constants.WorkerStates.IDLE:
+                case Constants.States.IDLE:
                     if(creep.ticksToLive < 100) creep.suicide();
                     if(creep.store.getFreeCapacity() > 0) {
-                        // find the container
-                        var tgtIsCntr = true;
-                        var target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
-                            filter: (structure) => {
-                                return structure.structureType == STRUCTURE_CONTAINER && 
-                                structure.store.getUsedCapacity(RESOURCE_ENERGY) > creep.store.getFreeCapacity();
-                            }
-                        });// =====
-                        // fallback to source
-                        if(target == null) {
-                            target = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
-                            tgtIsCntr = false;
-                        }// =====
-
-                        if(target != null) {
-                            creep.memory.targetId = target.id;
-                            creep.memory.state = Constants.WorkerStates.HARVESTING;
-                        }// =====
+                        creep.memory.state = Constants.States.HARVESTING;
                     }// =====
                     break;
             // ==============================
                     
             // ----- UPGRADING --------------
-                case Constants.WorkerStates.UPGRADING:
+                case Constants.States.UPGRADING:
                     switch(creep.upgradeController(creep.room.controller)) {
                         default:
                         case OK:
@@ -91,7 +80,7 @@ module.exports = {
                             break;
                         case ERR_NOT_ENOUGH_RESOURCES:
                             if(creep.ticksToLive < 100) creep.suicide();
-                            creep.memory.state = Constants.WorkerStates.HARVESTING;
+                            creep.memory.state = Constants.States.HARVESTING;
                             break;
                         case ERR_NO_BODYPART:
                             creep.suicide();

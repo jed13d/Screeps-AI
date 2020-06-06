@@ -26,6 +26,8 @@ module.exports = {
                 roomObj.memory[LOOK_CREEPS][Constants.Roles.MELEE]                  = {max: 0};
                 roomObj.memory[LOOK_CREEPS][Constants.Roles.RANGE]                  = {max: 0};
                 roomObj.memory[LOOK_CREEPS][Constants.Roles.UPGRADE]                = {max: 2};
+                roomObj.memory['warState'] = Constants.States.IDLE;
+                roomObj.memory['jobTargets'] = {};
 
                 roomObj.memory['state'] = NEXT_STATE;
                 break;

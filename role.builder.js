@@ -16,165 +16,109 @@ module.exports = {
             switch(creep.memory.state) {
                 
             // ----- BUILDING ---------------
-                case Constants.WorkerStates.BUILDING:
-                    /**
-                     * If there are construction sites, build, otherwise, upgrade
-                     */
-                    var target = creep.pos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES);
-                    creep.memory.targetId = (target != null) ? target.id : null;
-
-                    if(target != null) {
+                case Constants.States.BUILDING:
+                    if(creep.room.memory.jobTargets[Constants.RoomTargets.MY_CONSTRUCTION_SITES].length > 0) {
+                        var target = creep.pos.findClosestByRange(creep.room.memory.jobTargets[Constants.RoomTargets.MY_CONSTRUCTION_SITES]);
                         switch(creep.build(target)) {
                             default:
                             case OK:
                                 if(creep.store.getFreeCapacity() == creep.store.getCapacity()) {
                                     if(creep.ticksToLive < 100) creep.suicide();
-                                    creep.memory.targetId = null;
-                                    creep.memory.state = Constants.WorkerStates.HARVESTING;
+                                    creep.memory.state = Constants.States.HARVESTING;
                                 }// =====
                                 break;
                             case ERR_INVALID_TARGET:
-                                creep.memory.targetId = null;
                                 break;
                             case ERR_NOT_IN_RANGE:
                                 creep.moveTo(target);
                                 break;
                             case ERR_NOT_ENOUGH_RESOURCES:
                                 if(creep.ticksToLive < 100) creep.suicide();
-                                creep.memory.targetId = null;
-                                creep.memory.state = Constants.WorkerStates.HARVESTING;
+                                creep.memory.state = Constants.States.HARVESTING;
                                 break;
                             case ERR_NO_BODYPART:
                                 creep.suicide();
                                 break;
                         }// =====
                     } else {
-                        creep.memory.targetId = null;
-                        creep.memory.state = Constants.WorkerStates.REPAIRING;
+                        creep.memory.state = Constants.States.IDLE;
                     }// =====
+                    break;
             // ==============================
                     
             // ----- HARVESTING -------------
-                case Constants.WorkerStates.HARVESTING:
-                    if(creep.store.getFreeCapacity() > 0) {
-                        // find the container
-                        var tgtIsCntr = true;
-                        var target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
-                            filter: (structure) => {
-                                return structure.structureType == STRUCTURE_CONTAINER &&
-                                !structure.pos.inRangeTo(creep.room.controller, 5) &&
-                                structure.store.getUsedCapacity(RESOURCE_ENERGY) > creep.store.getFreeCapacity();
-                            }
-                        });// =====
-                        // fallback to source
-                        if(target == null) {
-                            target = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
-                            tgtIsCntr = false;
-                        }
-                        creep.memory.targetId = (target != null) ? target.id : null;
-
-                        if(target != null) {
-                            switch((tgtIsCntr) ? creep.withdraw(target, RESOURCE_ENERGY) : creep.harvest(target)) {
-                                default:
-                                case OK:
-                                    break;
-                                case ERR_NOT_IN_RANGE:
-                                    creep.moveTo(target);
-                                    break;
-                                case ERR_TIRED:
-                                case ERR_NOT_ENOUGH_RESOURCES:
-                                    creep.memory.targetId = null;
-                                    break;
-                                case ERR_NO_BODYPART:
-                                    creep.suicide();
-                                    break;
-                            }// =====
-                        } else {
-                            creep.memory.targetId = null;
-                            creep.memory.state = Constants.WorkerStates.IDLE;
+                case Constants.States.HARVESTING:
+                    if(creep.store.getFreeCapacity() > 0 && creep.room.memory.jobTargets[Constants.RoomTargets.ACTIVE_NRG].length > 0) {
+                        var target = creep.pos.findClosestByPath(creep.room.memory.jobTargets[Constants.RoomTargets.ACTIVE_NRG]);
+                        switch(creep.harvest(target)) {
+                            default:
+                            case OK:
+                                break;
+                            case ERR_NOT_IN_RANGE:
+                                creep.moveTo(target);
+                                break;
+                            case ERR_TIRED:
+                            case ERR_NOT_ENOUGH_RESOURCES:
+                                break;
+                            case ERR_NO_BODYPART:
+                                creep.suicide();
+                                break;
                         }// =====
                     } else {
-                        creep.memory.targetId = null;
-                        creep.memory.state = Constants.WorkerStates.BUILDING;
+                        creep.memory.state = Constants.States.IDLE;
                     }// =====
                     break;
             // ==============================
                     
             // ----- IDLE -------------------
                 default:
-                case Constants.WorkerStates.IDLE:
+                case Constants.States.IDLE:
                     if(creep.ticksToLive < 100) creep.suicide();
                     if(creep.store.getFreeCapacity() > 0) {
-                        // find the container
-                        var tgtIsCntr = true;
-                        var target = creep.pos.findClosestByRange(FIND_STRUCTURES, {
-                            filter: (structure) => {
-                                return structure.structureType == STRUCTURE_CONTAINER &&
-                                !structure.pos.inRangeTo(creep.room.controller, 5) &&
-                                structure.store.getUsedCapacity(RESOURCE_ENERGY) > creep.store.getFreeCapacity();
-                            }
-                        });// =====
-                        // fallback to source
-                        if(target == null) {
-                            target = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
-                            tgtIsCntr = false;
-                        }// =====
-
-                        if(target != null) {
-                            creep.memory.targetId = target.id;
-                            creep.memory.state = Constants.WorkerStates.HARVESTING;
-                        }// =====
-                    } else {
-                        var target = creep.pos.findClosestByPath(FIND_MY_CONSTRUCTION_SITES);
-                        if(target != null) {
-                            creep.memory.targetId = target.id;
-                            creep.memory.state = Constants.WorkerStates.BUILDING;
-                        }// =====
+                        creep.memory.state = Constants.States.HARVESTING;
+                    } else if(creep.room.memory.jobTargets[Constants.RoomTargets.STRUCTURES_NEED_REPAIRS].length > 0) {
+                        creep.memory.state = Constants.States.REPAIRING;
+                    } else if(creep.room.memory.jobTargets[Constants.RoomTargets.MY_CONSTRUCTION_SITES].length > 0) {
+                        creep.memory.state = Constants.States.BUILDING;
                     }// =====
                     break;
             // ==============================
                 
             // ----- REPAIRING ---------------
-                case Constants.WorkerStates.REPAIRING:
-                    /**
-                     * If there are construction sites, build, otherwise, upgrade
-                     */
-                    var target = creep.pos.findClosestByRange(creep.room.find(FIND_STRUCTURES, {
-                        filter: (structure) => {
-                            return structure.structureType == STRUCTURE_CONTAINER && 
-                            structure.hits < structure.hitsMax;
-                        }}));// =====
-                    creep.memory.targetId = (target != null) ? target.id : null;
+                case Constants.States.REPAIRING:
+                    var target = null;
+                    if(creep.room.memory.jobTargets[Constants.RoomTargets.STRUCTURES_NEED_REPAIRS].length > 0) {
+                        var target = creep.pos.findClosestByRange(creep.room.memory.jobTargets[Constants.RoomTargets.STRUCTURES_NEED_REPAIRS]);
+                    } else if(creep.room.memory.jobTargets[Constants.RoomTargets.WALLS_NEED_BULKING].length > 0) {
+                        var target = creep.pos.findClosestByRange(creep.room.memory.jobTargets[Constants.RoomTargets.STRUCTURES_NEED_REPAIRS]);
+                    }// =====
 
-                    if(target != null && creep.memory.targetId != null) {
+                    if(target != null) {
                         switch(creep.repair(target)) {
                             default:
                             case OK:
                                 if(creep.store.getFreeCapacity() == creep.store.getCapacity()) {
                                     if(creep.ticksToLive < 100) creep.suicide();
-                                    creep.memory.targetId = null;
-                                    creep.memory.state = Constants.WorkerStates.HARVESTING;
+                                    creep.memory.state = Constants.States.HARVESTING;
                                 }// =====
                                 break;
                             case ERR_INVALID_TARGET:
-                                creep.memory.targetId = null;
                                 break;
                             case ERR_NOT_IN_RANGE:
                                 creep.moveTo(target);
                                 break;
                             case ERR_NOT_ENOUGH_RESOURCES:
                                 if(creep.ticksToLive < 100) creep.suicide();
-                                creep.memory.targetId = null;
-                                creep.memory.state = Constants.WorkerStates.HARVESTING;
+                                creep.memory.state = Constants.States.HARVESTING;
                                 break;
                             case ERR_NO_BODYPART:
                                 creep.suicide();
                                 break;
                         }// =====
                     } else {
-                        creep.memory.targetId = null;
-                        creep.memory.state = Constants.WorkerStates.IDLE;
+                        creep.memory.state = Constants.States.IDLE;
                     }// =====
+                    break;
             // ==============================
 
             }// =====
