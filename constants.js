@@ -1,6 +1,8 @@
 
 module.exports = {
 
+    FLAG_ROOM_TO_CLAM: 'AnotherController',
+
     HarvesterActions: {
         HARVEST: 'harvest',
         PICKUP: 'pickup',
@@ -9,6 +11,7 @@ module.exports = {
     
     Roles: {
         BUILD: 'build',
+        CLAIM: 'claim',
         GENERAL: 'general',
         LOCAL_ENERGY_HARVEST: 'harvest-local-energy',
         MELEE: 'melee',
@@ -30,12 +33,14 @@ module.exports = {
 
     States: {
         ATTACKING: 'attacking',
+        CLAIMING: 'claiming',
         BUILDING: 'building',
         HARVESTING: 'harvesting',
         HEALING: 'healing',
         IDLE: 'idle',
         REPAIRING: 'repairing',
         SUPPLYING: 'supplying',
+        TRAVELING: 'traveling',
         UPGRADING: 'upgrading',
     },// ==============================
 
@@ -51,7 +56,8 @@ module.exports = {
                 delete Memory.creeps[i];
             }// =====
         }// =====
-        console.log("======================TICK", Game.time, "======================");
+        console.log("===========================================================");
+        console.log("====================== TICK", Game.time, "======================");
         console.log("CPU:", JSON.stringify(Game.cpu));
     },// ==============================
     

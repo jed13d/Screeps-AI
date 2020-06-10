@@ -20,6 +20,7 @@ module.exports = {
                 var NEXT_STATE = 'Building extensions';
                 var PREV_STATE = '';
                 
+                roomObj.memory[LOOK_CREEPS][Constants.Roles.BUILD]                  = {max: 2};
                 roomObj.memory['state'] = NEXT_STATE;
                 break;
         // ==============================
@@ -31,12 +32,12 @@ module.exports = {
 
                 var mySites = roomObj.find(FIND_MY_CONSTRUCTION_SITES, {filter: {structureType: STRUCTURE_EXTENSION}});
                 var myStcrs = roomObj.find(FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_EXTENSION}});
-
                 var sitesPlaced = mySites.length + myStcrs.length;
+
+                var spawnPos = roomObj.find(FIND_MY_SPAWNS)[0].pos;
                 var iNumsx = [spawnPos.x-7, spawnPos.x-4, spawnPos.x, spawnPos.x+4, spawnPos.x+7];
                 var iNumsy = [spawnPos.y-7, spawnPos.y-4, spawnPos.y, spawnPos.y+4, spawnPos.y+7];
                 if(sitesPlaced != CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION][roomObj.controller.level]) {
-                    var spawnPos = roomObj.find(FIND_MY_SPAWNS)[0].pos;
                     for(var x = spawnPos.x - 6, y = spawnPos.y - 5; sitesPlaced < CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION][roomObj.controller.level]; x++) {
                         if(!iNumsx.includes(x) && !iNumsy.includes(y)) {
                             if(roomObj.createConstructionSite(x, y, STRUCTURE_EXTENSION) == OK) {
@@ -60,6 +61,7 @@ module.exports = {
 
                 if(mySites.length == 0 && myStcrs.length == CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION][roomObj.controller.level]) {
                     roomObj.memory['state'] = NEXT_STATE;
+                    roomObj.memory[LOOK_CREEPS][Constants.Roles.BUILD]                  = {max: 1};
                 } else if((mySites.length + myStcrs.length) != CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION][roomObj.controller.level]) {
                     roomObj.memory['state'] = PREV_STATE;
                 }// =====

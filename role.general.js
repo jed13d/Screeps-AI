@@ -9,6 +9,12 @@ const Constants = require('constants');
  * It cycles through them based on predetermined prioriy.
  */
 module.exports = {
+
+    getMinTicksToLive(creep) {
+        var partsWork = _.filter(creep.body, (bp) => bp.type == WORK).length;
+        var harvestTikCost = creep.store.getCapacity(RESOURCE_ENERGY) / (partsWork * HARVEST_POWER);
+        return (harvestTikCost + 50);
+    },
     
     /** @param {Creep} creep **/
     run: function(creep) {

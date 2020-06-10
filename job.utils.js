@@ -16,12 +16,11 @@ module.exports = {
                 return structure.structureType == STRUCTURE_CONTAINER && 
                 structure.pos.inRangeTo(roomObj.controller, 3) &&
                 structure.store.getUsedCapacity(RESOURCE_ENERGY) > 0;
-            }
-        });// =====
+            }});// =====
     },// ==============================
 
     loadRoomDroppedEnergy(roomObj) {
-        roomObj.memory.jobTargets[Constants.RoomTargets.DROPPED_NRG] = roomObj.find(FIND_DROPPED_RESOURCES);
+        roomObj.memory.jobTargets[Constants.RoomTargets.DROPPED_NRG] = roomObj.find(FIND_DROPPED_RESOURCES, {filter: (resource) => {return resource.resourceType == RESOURCE_ENERGY;}});
     },// ==============================
 
     loadRoomHostileCreeps(roomObj) {
@@ -39,7 +38,8 @@ module.exports = {
     loadRoomStructuresNeedingRepair(roomObj) {
         roomObj.memory.jobTargets[Constants.RoomTargets.STRUCTURES_NEED_REPAIRS] = roomObj.find(FIND_STRUCTURES, {
             filter: (structure) => {
-                return structure.structureType != STRUCTURE_WALL && 
+                return structure.structureType != STRUCTURE_WALL &&
+                structure.structureType != STRUCTURE_ROAD &&
                 structure.hits < structure.hitsMax;
             }});// =====
     },// ==============================
@@ -52,18 +52,16 @@ module.exports = {
                         structure.structureType == STRUCTURE_TOWER ||
                         structure.structureType == STRUCTURE_CONTAINER) && 
                         structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
-            }
-    });// =====
+            }});// =====
     },// ==============================
 
     loadRoomWallsToBulk(roomObj) {
-        var hitsFalsePlateau = 10000;
+        var hitsFalsePlateau = 20000;
         roomObj.memory.jobTargets[Constants.RoomTargets.WALLS_NEED_BULKING] = roomObj.find(FIND_STRUCTURES, {
             filter: (structure) => {
                 return structure.structureType == STRUCTURE_WALL &&
                 structure.hits < hitsFalsePlateau;  // structure.hitsMax (300 mil)
-            }// =====
-        });// =====
+            }});// =====
     },// ==============================
 
     loadRoomTargets: function(roomObj) {

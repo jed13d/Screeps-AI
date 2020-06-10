@@ -16,7 +16,7 @@ module.exports = {
 
         // ------------------------------
             default:
-                var NEXT_STATE = 'Build roads around spawn';
+                var NEXT_STATE = 'Building extensions';
                 var PREV_STATE = '';
 
                 roomObj.memory[LOOK_CREEPS][Constants.Roles.BUILD]                  = {max: 2};
@@ -127,11 +127,7 @@ module.exports = {
                         break;
                     }// =====
                 }// =====
-
-                // var spawnPos = roomObj.find(FIND_MY_SPAWNS)[0].pos;
-                // var sc = roomObj.getPositionAt((spawnPos.x + 1), (spawnPos.y - 1));
-                // var sc_result = roomObj.createConstructionSite(sc, STRUCTURE_CONTAINER);
-
+                
                 roomObj.memory['state'] = NEXT_STATE;
                 break;
         // ==============================
@@ -145,12 +141,14 @@ module.exports = {
 
                 if(mySites.length == 0) {
                     roomObj.memory['state'] = NEXT_STATE;
+                    roomObj.memory[LOOK_CREEPS][Constants.Roles.BUILD]                  = {max: 1};
                 }// =====
                 break;
         // ==============================
             
         // ------------------------------
             case 'Complete Controller Level 2':
+
                 break;
         // ==============================
 

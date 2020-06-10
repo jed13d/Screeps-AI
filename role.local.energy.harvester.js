@@ -28,7 +28,7 @@ module.exports = {
                         var target = null;
                         var action;
                         if(creep.room.memory.jobTargets[Constants.RoomTargets.DROPPED_NRG].length > 0) {
-                            target = creep.pos.findClosestByRange(creep.room.memory.jobTargets[Constants.RoomTargets.DROPPED_NRG]);
+                            target = creep.pos.findClosestByPath(creep.room.memory.jobTargets[Constants.RoomTargets.DROPPED_NRG]);
                             action = Constants.HarvesterActions.PICKUP;
                         } else if(creep.room.memory.jobTargets[Constants.RoomTargets.RUINS_WITH_NRG].length > 0) {
                             target = creep.pos.findClosestByRange(creep.room.memory.jobTargets[Constants.RoomTargets.RUINS_WITH_NRG]);

@@ -80,6 +80,8 @@ module.exports = {
                         creep.memory.state = Constants.States.REPAIRING;
                     } else if(creep.room.memory.jobTargets[Constants.RoomTargets.MY_CONSTRUCTION_SITES].length > 0) {
                         creep.memory.state = Constants.States.BUILDING;
+                    } else if(creep.room.memory.jobTargets[Constants.RoomTargets.WALLS_NEED_BULKING].length > 0) {
+                        creep.memory.state = Constants.States.REPAIRING;
                     }// =====
                     break;
             // ==============================
@@ -90,7 +92,7 @@ module.exports = {
                     if(creep.room.memory.jobTargets[Constants.RoomTargets.STRUCTURES_NEED_REPAIRS].length > 0) {
                         var target = creep.pos.findClosestByRange(creep.room.memory.jobTargets[Constants.RoomTargets.STRUCTURES_NEED_REPAIRS]);
                     } else if(creep.room.memory.jobTargets[Constants.RoomTargets.WALLS_NEED_BULKING].length > 0) {
-                        var target = creep.pos.findClosestByRange(creep.room.memory.jobTargets[Constants.RoomTargets.STRUCTURES_NEED_REPAIRS]);
+                        var target = creep.pos.findClosestByRange(creep.room.memory.jobTargets[Constants.RoomTargets.WALLS_NEED_BULKING]);
                     }// =====
 
                     if(target != null) {

@@ -16,14 +16,16 @@ module.exports.loop = function () {
         const startCpu = Game.cpu.getUsed();
 
         // load fresh targets lists into memory
-        jobUtils.loadRoomTargets(Game.rooms[name]);
-        
-        managerController.run(Game.rooms[name]);
-        console.log("----------------------------------------");
+        if(Game.rooms[name].controller.my && Game.rooms[name].find(FIND_MY_SPAWNS).length > 0) {
+            jobUtils.loadRoomTargets(Game.rooms[name]);
+            
+            managerController.run(Game.rooms[name]);
+            console.log("----------------------------------------");
 
-        managerTower.run(Game.rooms[name]);
-        // console.log("----------------------------------------");
-        
+            managerTower.run(Game.rooms[name]);
+            // console.log("----------------------------------------");
+        }// =====
+            
         managerCreep.run(Game.rooms[name]);
 
         const elapsed = Game.cpu.getUsed() - startCpu;

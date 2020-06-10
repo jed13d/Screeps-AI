@@ -127,6 +127,7 @@ module.exports = {
 
                 if(mySites.length == 0) {
                     roomObj.memory['state'] = NEXT_STATE;
+                    roomObj.memory[LOOK_CREEPS][Constants.Roles.BUILD]                  = {max: 1};
                 }// =====
                 break;
         // ==============================

@@ -20,6 +20,7 @@ module.exports = {
                 var NEXT_STATE = 'Building tower';
                 var PREV_STATE = '';
                 
+                roomObj.memory[LOOK_CREEPS][Constants.Roles.BUILD]                  = {max: 2};
                 roomObj.memory['state'] = NEXT_STATE;
                 break;
         // ==============================
@@ -89,6 +90,7 @@ module.exports = {
 
                 if(mySites.length == 0 && myStcrs.length == CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION][roomObj.controller.level]) {
                     roomObj.memory['state'] = NEXT_STATE;
+                    roomObj.memory[LOOK_CREEPS][Constants.Roles.BUILD]                  = {max: 1};
                 } else if((mySites.length + myStcrs.length) != CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION][roomObj.controller.level]) {
                     roomObj.memory['state'] = PREV_STATE;
                 }// =====
